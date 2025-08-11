@@ -1,0 +1,26 @@
+package templates
+
+import (
+    "fmt"
+    "html"
+    "github.com/btnmasher/testdj/internal/dj"
+)
+
+templ PlaylistPartial(lobby *dj.Lobby) {
+    <ul class="space-y-2">
+        if len(lobby.Videos) > 0 {
+            for _, v := range lobby.Videos {
+                <li class="sub-panel">
+                    <div class="my-1">
+                        <div class="text-sm">{html.UnescapeString(v.Title)} - {fmt.Sprintf("%v", v.Duration)}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-300">submitted by {v.SubmitterName}</div>
+                    </div>
+                </li>
+            }
+        } else {
+            <li class="sub-panel">
+                <div class="text-sm my-1">No Videos Queued</div>
+            </li>
+        }
+    </ul>
+}

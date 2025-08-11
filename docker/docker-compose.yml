@@ -1,0 +1,35 @@
+# ./docker/docker-compose.yml (Base configuration)
+
+services:
+  testdj:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "${LISTEN_PORT:-8080}:8080"
+    networks:
+      - tunnel
+    environment:
+      - ENVIRONMENT=production
+      - LISTEN_ADDR=${LISTEN_ADDR:-}
+      - LISTEN_PORT=${LISTEN_PORT:-8080}
+      - YT_API_KEY=${YT_API_KEY}
+    restart: unless-stopped
+
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    env_file: .env
+    restart: unless-stopped
+    container_name: cloudflare-tunnel
+    networks:
+      - tunnel
+    environment:
+      - TUNNEL_TOKEN=${CF_TUNNEL_TOKEN}
+    depends_on:
+      - testdj
+
+networks:
+  tunnel:
+    name: cloudflare-tunnel-net
+    driver: bridge

@@ -1,0 +1,85 @@
+package templates
+
+import (
+    "time"
+    "fmt"
+    "github.com/btnmasher/testdj/internal/dj"
+)
+
+templ VotesPartial(lobby *dj.Lobby, user *dj.User) {
+    <div id="vote-container" class="mb-4">
+        if lobby.VoteSkip.Active {
+            <div class="vote-skip-panel border-marching">
+                <div class="font-bold text-shadow-sm">Vote to Skip Current Video</div>
+                <div class="flex space-x-2">
+                    <button
+                        hx-post={"/lobby/" + lobby.ID + "/vote/skip/submit"} hx-vals='{"vote":"yes"}'
+                        class="btn-vote-yes"
+                        hx-disabled-elt="this"
+                        disabled?={lobby.VoteSkip.YesVotes.Exists(user.ID)}>
+                        <div class="vote-yes-counter">
+                            <span>{lobby.VoteSkip.YesVotes.Length()}</span>
+                        </div>
+                        Yes
+                    </button>
+
+                    <button
+                        hx-post={"/lobby/" + lobby.ID + "/vote/skip/submit"} hx-vals='{"vote":"no"}'
+                        class="btn-vote-no"
+                        hx-disabled-elt="this"
+                        disabled?={lobby.VoteSkip.NoVotes.Exists(user.ID)}>
+                        No
+                        <div class="vote-no-counter">
+                            <span>{lobby.VoteSkip.NoVotes.Length()}</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="text-xs font-semibold text-shadow-sm">
+                    <span>
+                        {{ skipEnd := lobby.VoteSkip.StartedAt.Add(30*time.Second) }}
+                        Voting ends in <span id="skip-timer" class="font-bold" data-ends={skipEnd.Unix()}>{fmt.Sprintf("%v", skipEnd.Sub(time.Now()).Round(time.Second))}</span>
+                    </span>
+                </div>
+            </div>
+        }
+
+        if lobby.VoteMute.Active {
+            <div class="vote-mute-panel border-marching">
+                <div class="font-bold text-shadow-sm">Vote to mute<span class="font-extrabold">{" sdfgdsf " + lobby.VoteMute.TargetName}</span>{" for "} 10 minutes</div>
+
+                <div class="flex space-x-2">
+                    <button
+                        hx-post={"/lobby/" + lobby.ID + "/vote/mute/submit"}
+                        hx-vals='{"vote":"yes"}'
+                        class="btn-vote-yes"
+                        hx-disabled-elt="this"
+                        disabled?={lobby.VoteMute.YesVotes.Exists(user.ID) || lobby.VoteMute.TargetID == user.ID}>
+                        <div class="vote-yes-counter">
+                            <span>{lobby.VoteMute.YesVotes.Length()}</span>
+                        </div>
+                        Yes
+                    </button>
+
+                    <button
+                        hx-post={"/lobby/" + lobby.ID + "/vote/mute/submit"} hx-vals='{"vote":"no"}'
+                        class="btn-vote-no"
+                        hx-disabled-elt="this"
+                        disabled?={lobby.VoteMute.NoVotes.Exists(user.ID) || lobby.VoteMute.TargetID == user.ID}>
+                        No
+                        <div class="vote-no-counter">
+                            <span>{lobby.VoteMute.NoVotes.Length()}</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div class="text-xs font-semibold text-shadow-sm">
+                    <span>
+                        {{ muteEnd := lobby.VoteMute.StartedAt.Add(30*time.Second) }}
+                        Voting ends in <span id="mute-timer" class="font-bold" data-ends={muteEnd.Unix()}>{fmt.Sprintf("%v", muteEnd.Sub(time.Now()).Round(time.Second))}</span>
+                    </span>
+                </div>
+            </div>
+        }
+    </div>
+}

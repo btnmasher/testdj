@@ -1,0 +1,780 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind utilities;
+@tailwind components;
+
+@plugin "@tailwindcss/forms" {
+    strategy: "base";
+}
+
+@plugin "@tailwindcss/typography" {}
+
+@layer base {
+    button:not([disabled]),
+    [role="button"]:not([disabled]) {
+        cursor: pointer;
+    }
+}
+
+:root {
+    --tw-rainbow-blur: 1rem;
+    /* Angle & period for 1 “seamless” cycle; override per-element */
+    --rainbow-angle: 90deg; /* TODO: replace with utility var*/
+    --rainbow-period: 100%; /* TODO: replace with utility var*/
+    --rainbow-bg-size: 400% 100%; /* TODO: replace with utility var*/
+    :root { --mobile-display: none; }
+}
+
+/* Capture Tailwind padding and set them to variables */
+@utility p-* {
+    --pad-t: calc(--value(integer) * var(--spacing));
+    --pad-r: calc(--value(integer) * var(--spacing));
+    --pad-b: calc(--value(integer) * var(--spacing));
+    --pad-l: calc(--value(integer) * var(--spacing));
+}
+@utility px-* {
+    --pad-l: calc(--value(integer) * var(--spacing));
+    --pad-r: calc(--value(integer) * var(--spacing));
+}
+@utility py-* {
+    --pad-t: calc(--value(integer) * var(--spacing));
+    --pad-b: calc(--value(integer) * var(--spacing));
+}
+@utility pt-* { --pad-t: calc(--value(integer) * var(--spacing)) }
+@utility pr-* { --pad-r: calc(--value(integer) * var(--spacing)) }
+@utility pb-* { --pad-b: calc(--value(integer) * var(--spacing)) }
+@utility pl-* { --pad-l: calc(--value(integer) * var(--spacing)) }
+
+/* Border widths → rainbow thickness */
+@utility border-0 { --tw-custom-border-thickness: 1px }
+@utility border   { --tw-custom-border-thickness: 1px }
+@utility border-* {
+    --tw-custom-border-thickness: calc(--value(integer) * 1px);
+    /* e.g. bg-sky-600 -> var(--color-sky-600), bg-background -> var(--color-background) */
+    --tw-custom-border-color: --value(--color-*);
+}
+
+@utility text-rainbow-size-* {
+    --tw-text-rainbow-size: calc(--value(integer) * 1%)
+}
+
+@utility anim-dir-* {
+    animation-direction: --value("normal", "reverse", "alternate", "alternate-reverse") !important;
+}
+
+/* Capture the chosen Tailwind background color token into --tw-bg */
+@utility bg-* {
+    /* e.g. bg-sky-600 -> var(--color-sky-600), bg-background -> var(--color-background) */
+    --tw-bg: --value(--color-*);
+}
+
+/* Overlay a veil on top of the existing bg color without replacing it */
+@utility bg-overlay {
+    --bg-overlay-amount: 8%;
+    --bg-overlay-color: white;
+    background-image: linear-gradient(
+            0deg,
+            color-mix(in oklab, var(--bg-overlay-color) var(--bg-overlay-amount), transparent)
+    );
+}
+
+/* Mix a tint/shade INTO the base bg color (this replaces background-color) */
+@utility bg-mix {
+    /* set one or both of these per element if you like */
+    --bg-mix-color: white;
+    --bg-mix-amount: 10%;
+    background-color: color-mix(
+            in oklab,
+            var(--tw-bg, transparent) calc(100% - var(--bg-mix-amount)),
+            var(--bg-mix-color) var(--bg-mix-amount)
+    );
+}
+
+/* (Optional) build a fully-resolved color that respects the /opacity class */
+@utility bg-resolve {
+    --_alpha: var(--tw-bg-alpha, 100%);
+    --tw-bg-resolved: color-mix(in oklab, var(--tw-bg, transparent) var(--_alpha), transparent);
+}
+
+@utility inset-ring-* { --tw-inset-ring-w: calc(--value(integer) * 1px) }
+
+/* TOAST AND CLICK ANIM */
+@layer utilities {
+    /* ---------- Custom Inset Ring ---------- */
+    .inset-ring {
+        --tw-inset-ring-w: 0px;
+        --tw-inset-ring-color: transparent;
+        --tw-inset-ring-shadow: inset 0 0 0 var(--tw-inset-ring-w) var(--tw-inset-ring-color);
+        box-shadow: var(--tw-inset-ring-shadow),
+        var(--tw-ring-offset-shadow, 0 0 #0000),
+        var(--tw-ring-shadow, 0 0 #0000),
+        var(--tw-shadow, 0 0 #0000);
+    }
+
+    /* color tokens */
+    .inset-ring-transparent {
+        --tw-inset-ring-color: transparent;
+    }
+
+    .inset-ring-current {
+        --tw-inset-ring-color: currentColor;
+    }
+
+    .inset-ring-green-600 {
+        --tw-inset-ring-color: theme('colors.green.600');
+    }
+
+    .inset-ring-blue-500 {
+        --tw-inset-ring-color: theme('colors.blue.500');
+    }
+
+    .inset-ring-slate-500 {
+        --tw-inset-ring-color: theme('colors.slate.500');
+    }
+
+    .inset-ring-red-500 {
+        --tw-inset-ring-color: theme('colors.red.500');
+    }
+
+    /* ---------- Smooth ring animation (Chromium/Safari) ---------- */
+    @supports (property: --tw-inset-ring-w) {
+        @property --tw-inset-ring-w {
+            syntax: '<length>';
+            inherits: false;
+            initial-value: 0px;
+        }
+        @property --tw-inset-ring-color {
+            syntax: '<color>';
+            inherits: false;
+            initial-value: transparent;
+        }
+
+        @keyframes anim-border-typed {
+            0% {
+                --tw-inset-ring-w: 0px;
+                --tw-inset-ring-color: transparent;
+            }
+            10% {
+                --tw-inset-ring-color: theme('colors.green.600');
+            }
+            40% {
+                --tw-inset-ring-w: 4px;
+            }
+            80% {
+                --tw-inset-ring-w: 2px;
+            }
+            100% {
+                --tw-inset-ring-w: 1px;
+                --tw-inset-ring-color: transparent;
+            }
+        }
+        .animate-check {
+            animation: anim-border-typed 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+    }
+
+    /* ---------- Smooth ring animation (Firefox fallback) ---------- */
+    @supports not (property: --tw-inset-ring-w) {
+        @keyframes anim-border-fallback {
+            0% {
+                box-shadow: inset 0 0 0 0px rgba(22, 163, 74, 0), var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+            }
+            10% {
+                box-shadow: inset 0 0 0 0px var(--tw-inset-ring-color), var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+            }
+            40% {
+                box-shadow: inset 0 0 0 4px var(--tw-inset-ring-color), var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+            }
+            80% {
+                box-shadow: inset 0 0 0 2px var(--tw-inset-ring-color), var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+            }
+            100% {
+                box-shadow: inset 0 0 0 1px rgba(22, 163, 74, 0), var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+            }
+        }
+        .animate-check {
+            animation: anim-border-fallback 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+    }
+
+    @keyframes check-pop {
+        0% {
+            opacity: 0;
+            transform: scale(0.85);
+            color: rgb(22 163 74); /* green-600 */
+        }
+        15% {
+            opacity: 1;
+            transform: scale(1);
+            color: rgb(22 163 74)
+        }
+        75% {
+            opacity: 1;
+            transform: scale(1);
+            color: rgb(22 163 74)
+        }
+        100% {
+            opacity: 0;
+            transform: scale(0.9);
+            color: rgb(22 163 74)
+        }
+    }
+
+    @keyframes hide-then-show {
+        0% {
+            opacity: 1;
+        }
+        15% {
+            opacity: 0;
+        }
+        80% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes show-then-hide {
+        0% {
+            opacity: 0;
+            pointer-events: none;
+        }
+        10% {
+            opacity: 0.8;
+            pointer-events: auto;
+        }
+        90% {
+            opacity: 0.8;
+            pointer-events: auto;
+        }
+        100% {
+            opacity: 0;
+            pointer-events: none;
+        }
+    }
+
+    .toast-visible {
+        animation: show-then-hide 6s forwards;
+    }
+
+    .animate-check .anim-button-text {
+        animation: hide-then-show 2s cubic-bezier(0.85, 0, 0.15, 1);
+    }
+
+    .animate-check .success-check {
+        animation: check-pop 2s cubic-bezier(0.87, 0, 0.13, 1);
+    }
+
+}
+
+/* RAINBOWS */
+@layer utilities {
+    @property --conic-from {
+        syntax: '<angle>';
+        inherits: false;
+        initial-value: 0deg;
+    }
+
+    /* =======================
+       Keyframes
+       ======================= */
+
+    @keyframes rainbow-conic-rotate {
+        to { --conic-from: 360deg; }
+    }
+
+    @keyframes marching-border {
+        0% {
+            background-position: left top, right bottom, left bottom, right top;
+        }
+
+        100% {
+            background-position:
+                    left var(--period) top,
+                    right var(--period) bottom,
+                    left bottom var(--period),
+                    right top var(--period);
+        }
+    }
+
+    @keyframes rainbow-shift-vec {
+        100% {
+            background-position:
+                calc(var(--rainbow-period) * cos(var(--rainbow-angle)))
+                calc(var(--rainbow-period) * sin(var(--rainbow-angle)));
+            }
+    }
+
+    @keyframes rainbow-bg-slide {
+        0%   { background-position: 100% 50% }
+        100% { background-position: 0    50% }
+    }
+
+    @keyframes rotate {
+        100% {
+            transform: rotate(1turn);
+        }
+    }
+
+    /* =======================
+       Linear: BG + Text
+       ======================= */
+
+    .bg-rainbow, .text-rainbow {
+        --tw-rainbow-steps:
+            rgb(255 0 72 / var(--tw-custom-alpha, 1)),
+            rgb(255 138 0 / var(--tw-custom-alpha, 1)),
+            rgb(255 230 0 / var(--tw-custom-alpha, 1)),
+            rgb(0 208 132 / var(--tw-custom-alpha, 1)),
+            rgb(0 207 255 / var(--tw-custom-alpha, 1)),
+            rgb(122 0 255 / var(--tw-custom-alpha, 1)),
+            rgb(255 0 177 / var(--tw-custom-alpha, 1)),
+            rgb(255 0 72 / var(--tw-custom-alpha, 1));
+    }
+
+    .border-rainbow, .shadow-rainbow {
+        /* Conical gradient vars; alpha is controlled by --tw-custom-alpha */
+        --conic1: rgb(255 0 72 / var(--tw-custom-alpha, 1));
+        --conic2: rgb(255 138 0 / var(--tw-custom-alpha, 1));
+        --conic3: rgb(255 230 0 / var(--tw-custom-alpha, 1));
+        --conic4: rgb(0 208 132 / var(--tw-custom-alpha, 1));
+        --conic5: rgb(0 207 255 / var(--tw-custom-alpha, 1));
+        --conic6: rgb(122 0 255 / var(--tw-custom-alpha, 1));
+        --conic7: rgb(255 0 177 / var(--tw-custom-alpha, 1));
+        --conic-from: 0deg;          /* starting angle (animates)   */
+        --conic-x: 50%;              /* center X (e.g., 50%, 0%, …) */
+        --conic-y: 50%;              /* center Y                    */
+        --conic-steps: 7;            /* how many slices in one turn */
+        --slice: calc(360deg / var(--conic-steps));
+    }
+
+    .bg-caution {
+        background-color: transparent;
+        position: relative;
+        opacity: .99 !important;
+
+        &:after {
+            width: 100%;
+            height: 100%;
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            filter: blur(2px);
+            pointer-events: none;
+            background-image:
+                repeating-linear-gradient(45deg,
+                    rgb(255 212 0 / .15) 0 32px, /* TODO: insert tunable vars */
+                    rgb(0 0 0 / .15) 16px 64px   /* TODO: insert tunable vars */
+                );
+            background-repeat: repeat;
+            background-size: 200% 100%;
+            animation: rainbow-bg-slide 30s linear infinite; /* TODO: convert speed to var*/
+            background-origin: padding-box;
+            background-clip: padding-box;
+            box-sizing: content-box;
+        }
+    }
+
+    .bg-rainbow {
+        background-image: repeating-linear-gradient(var(--rainbow-angle), var(--tw-rainbow-steps));
+        background-repeat: repeat;
+        background-size: var(--tw-text-rainbow-size, 50%) 200%;
+        animation: rainbow-bg-slide var(--tw-rainbow-speed, 8s) linear infinite;
+    }
+
+    .text-rainbow {
+        background-image: repeating-linear-gradient(var(--rainbow-angle), var(--tw-rainbow-steps));
+        background-repeat: repeat;
+        background-size: var(--tw-text-rainbow-size, 50%) 200%;
+        animation: rainbow-bg-slide var(--tw-rainbow-speed, 8s) linear infinite;
+        -webkit-background-clip: text; background-clip: text;
+        color: transparent; -webkit-text-fill-color: transparent;
+    }
+
+    /* =======================
+       Radial background
+       ======================= */
+    .bg-rainbow-radial {
+        background-image: radial-gradient(120% 120% at 50% 50%, var(--tw-rainbow-stops));
+        background-repeat: repeat;
+        animation: rainbow-shift-vec var(--tw-rainbow-speed, 8s) linear infinite;
+    }
+
+    /* =======================
+       Marching ants border
+       ======================= */
+    .border-marching {
+        --dash: 12px;           /* length of a colored dash along the edge */
+        --gap: 6px;            /* length of the transparent gap along the edge */
+        --thick-y: var(--tw-custom-border-thickness);
+        --thick-x: var(--tw-custom-border-thickness);
+        --period: calc(var(--dash) + var(--gap)); /* one repeat tile */
+        border-color: unset;
+        border-style: unset;
+        opacity: inherit;
+
+        /* Four stripes: top, bottom, left, right */
+        background-image:
+                linear-gradient(90deg, var(--tw-custom-border-color) 50%, transparent 50%),
+                linear-gradient(90deg, var(--tw-custom-border-color) 50%, transparent 50%),
+                linear-gradient( 0deg, var(--tw-custom-border-color) 50%, transparent 50%),
+                linear-gradient( 0deg, var(--tw-custom-border-color) 50%, transparent 50%);
+        background-position: left top, right bottom, left bottom, right top;
+        background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+
+        /* tile sizes in % (period × thickness) */
+        background-size:
+                var(--period) var(--thick-y),  /* top    */
+                var(--period) var(--thick-y),  /* bottom */
+                var(--thick-x) var(--period),  /* left   */
+                var(--thick-x) var(--period);  /* right  */
+
+        /* pin to the four edges of the padding box */
+        background-origin: padding-box;
+        background-clip: padding-box;
+        animation: marching-border 1s linear infinite;
+    }
+
+    .border-rainbow {
+        position: relative;
+        z-index: 0;
+        border-radius: inherit;
+        border-style: inherit;
+        border-color: transparent;
+        opacity: inherit;
+
+        background-image:
+            linear-gradient(var(--tw-bg), var(--tw-bg)),
+            repeating-conic-gradient(
+                    from var(--conic-from) at var(--conic-x) var(--conic-y),
+                    var(--conic1) 0deg,
+                    var(--conic2) calc(1 * var(--slice)),
+                    var(--conic3) calc(2 * var(--slice)),
+                    var(--conic4) calc(3 * var(--slice)),
+                    var(--conic5) calc(4 * var(--slice)),
+                    var(--conic6) calc(5 * var(--slice)),
+                    var(--conic7) calc(6 * var(--slice)),
+                        /* close the loop with the first color to avoid a seam */
+                    var(--conic1) calc(7 * var(--slice))
+            );
+        background-origin: border-box;
+        background-repeat: no-repeat; /* conic covers the box */
+        background-clip:
+                padding-box, /* Clip inner background padding-box */
+                border-box; /* Clip rainbow background to the border-box (default) */
+
+        animation: rainbow-conic-rotate var(--tw-rainbow-speed, 8s) linear infinite;
+    }
+
+    /*!* =======================*/
+    /*   OUTER rainbow glow (drop shadow style)*/
+    /*   ======================= *!*/
+
+    .shadow-rainbow {
+        position: relative;
+        z-index: 0;
+        border-color: transparent;
+
+        &:before {
+            border: inherit;
+            border-radius: inherit;
+            background-image:
+                repeating-conic-gradient(
+                    from var(--conic-from) at var(--conic-x) var(--conic-y),
+                    var(--conic1) 0deg,
+                    var(--conic2) calc(1 * var(--slice)),
+                    var(--conic3) calc(2 * var(--slice)),
+                    var(--conic4) calc(3 * var(--slice)),
+                    var(--conic5) calc(4 * var(--slice)),
+                    var(--conic6) calc(5 * var(--slice)),
+                    var(--conic7) calc(6 * var(--slice)),
+                        /* close the loop with the first color to avoid a seam */
+                    var(--conic1) calc(7 * var(--slice))
+                );
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background-size: 100% 100%;
+            background-repeat: no-repeat; /* conic covers the box */
+            background-origin: border-box;
+            background-clip: border-box;
+            filter:blur(var(--tw-rainbow-blur, 24px));
+            opacity: var(--tw-custom-alpha, 0.75); /* extra multiplier if desired */
+            animation: rainbow-conic-rotate var(--tw-rainbow-speed, 8s) linear infinite;
+        }
+
+        &:after {
+            border: inherit;
+            border-radius: inherit;
+            opacity: inherit;
+            --clip-color: rgb(from var(--tw-bg) r g b / 1);
+            background-image: linear-gradient(var(--clip-color), var(--clip-color));
+            /*background-color: var(--clip-color);*/
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background-size: 100% 100%;
+            background-repeat: no-repeat; /* conic covers the box */
+            background-origin: border-box;
+            background-clip: border-box;
+            box-sizing: border-box;
+        }
+    }
+
+    /*!* =======================*/
+    /*   INSET rainbow glow (inner ring; clipped to border)*/
+    /*   ======================= *!*/
+    /*.shadow-rainbow-inset {*/
+    /*    position: relative;*/
+    /*    isolation: isolate;*/
+    /*}*/
+    /*.shadow-rainbow-inset::before {*/
+    /*    --tw-rainbow-stops:*/
+    /*        rgb(255 0 72 / var(--tw-custom-alpha, 1)),*/
+    /*        rgb(255 138 0 / var(--tw-custom-alpha, 1)),*/
+    /*        rgb(255 230 0 / var(--tw-custom-alpha, 1)),*/
+    /*        rgb(0 208 132 / var(--tw-custom-alpha, 1)),*/
+    /*        rgb(0 207 255 / var(--tw-custom-alpha, 1)),*/
+    /*        rgb(122 0 255 / var(--tw-custom-alpha, 1)),*/
+    /*        rgb(255 0 177 / var(--tw-custom-alpha, 1)),*/
+    /*        rgb(255 0 72 / var(--tw-custom-alpha, 1));*/
+    /*    content: "";*/
+    /*    position: absolute;*/
+    /*    inset: 0;*/
+    /*    pointer-events: none;*/
+    /*    padding: var(--tw-rainbow-inset, 10px);*/
+    /*    background: repeating-radial-gradient(120% 120% at 50% 50%, var(--tw-rainbow-stops));*/
+    /*    background-size: 200% 200%;*/
+    /*    animation: rainbow-shift-vec var(--tw-rainbow-speed, 8s) linear infinite;*/
+
+    /*    !* Mask to show only the inner ring *!*/
+    /*    -webkit-mask:*/
+    /*            linear-gradient(#000 0 0) content-box,*/
+    /*            linear-gradient(#000 0 0);*/
+    /*    -webkit-mask-composite: xor;*/
+    /*    mask:*/
+    /*            linear-gradient(#000 0 0) content-box,*/
+    /*            linear-gradient(#000 0 0);*/
+    /*    mask-composite: exclude;*/
+
+    /*    filter: blur(var(--tw-rainbow-inset-blur, 8px));*/
+    /*    opacity: var(--tw-rainbow-inset-opacity, 0.9); !* extra multiplier if desired *!*/
+    /*    border-radius: inherit;*/
+    /*}*/
+
+    /*!* =======================*/
+    /*   Dash/Dotted rainbow ring*/
+    /*   Use a wrapper (.rainbow-frame) around your content.*/
+    /*   ======================= *!*/
+
+    /*.rainbow-frame {*/
+    /*    --tw-rainbow-stops:*/
+    /*            rgb(255 0 72 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(255 138 0 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(255 230 0 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(0 208 132 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(0 207 255 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(122 0 255 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(255 0 177 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(255 0 72 / var(--tw-custom-alpha, 1));*/
+    /*    --tw-rainbow-thickness: 4px;*/
+    /*    padding: var(--tw-rainbow-thickness);*/
+    /*    border-radius: var(--tw-rainbow-radius, 1rem);*/
+
+    /*    background-image: repeating-linear-gradient(var(--rainbow-angle), var(--tw-rainbow-stops));*/
+    /*    background-repeat: repeat;*/
+    /*    animation: rainbow-shift-vec var(--tw-rainbow-speed, 8s) linear infinite;*/
+
+    /*    !* ring mask *!*/
+    /*    -webkit-mask:*/
+    /*            linear-gradient(#000 0 0) padding-box,*/
+    /*            linear-gradient(#000 0 0) content-box;*/
+    /*    -webkit-mask-composite: xor;*/
+    /*    mask:*/
+    /*            linear-gradient(#000 0 0) padding-box,*/
+    /*            linear-gradient(#000 0 0) content-box;*/
+    /*    mask-composite: exclude;*/
+    /*}*/
+    /*.rainbow-frame > .rainbow-inner { border-radius: inherit; }*/
+
+    /*!* Add dashed pattern segments via repeating-conic mask *!*/
+    /*.rainbow-dashed {*/
+    /*    --tw-rainbow-stops:*/
+    /*            rgb(255 0 72 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(255 138 0 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(255 230 0 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(0 208 132 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(0 207 255 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(122 0 255 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(255 0 177 / var(--tw-custom-alpha, 1)),*/
+    /*            rgb(255 0 72 / var(--tw-custom-alpha, 1));*/
+    /*    --tw-rainbow-dash: 18deg; !* segment size *!*/
+    /*    --tw-rainbow-gap: 10deg;  !* transparent portion *!*/
+    /*    -webkit-mask:*/
+    /*            repeating-conic-gradient(#000 0 calc(var(--tw-rainbow-dash) - var(--tw-rainbow-gap)),*/
+    /*            #0000 0 var(--tw-rainbow-dash)) padding-box,*/
+    /*            linear-gradient(#000 0 0) padding-box,*/
+    /*            linear-gradient(#000 0 0) content-box;*/
+    /*    -webkit-mask-composite: source-in, xor;*/
+
+    /*    mask:*/
+    /*            repeating-conic-gradient(#000 0 calc(var(--tw-rainbow-dash) - var(--tw-rainbow-gap)),*/
+    /*            #0000 0 var(--tw-rainbow-dash)) padding-box,*/
+    /*            linear-gradient(#000 0 0) padding-box,*/
+    /*            linear-gradient(#000 0 0) content-box;*/
+    /*    mask-composite: intersect, exclude;*/
+    /*}*/
+    /*.rainbow-dotted { --tw-rainbow-dash: 6deg; --tw-rainbow-gap: 10deg; }*/
+
+    /* ===== Slash opacity classes (no plugin) =====
+       bg-rainbow/50, text-rainbow/70, border-rainbow/30, etc.
+    */
+
+    /* helper to DRY selectors per value */
+    /* 0% */
+    .bg-rainbow\/0,.text-rainbow\/0,.bg-rainbow-radial\/0,.border-rainbow\/0,
+    .shadow-rainbow\/0,.shadow-rainbow-inset\/0,.rainbow-frame\/0,
+    .rainbow-dashed\/0,.border-alternating\/0,.rainbow-dotted\/0{ --tw-custom-alpha: 0 }
+
+    /* 5% */
+    .bg-rainbow\/5,.text-rainbow\/5,.bg-rainbow-radial\/5,.border-rainbow\/5,
+    .shadow-rainbow\/5,.shadow-rainbow-inset\/5,.rainbow-frame\/5,
+    .rainbow-dashed\/5,.border-alternating\/5,.rainbow-dotted\/5{ --tw-custom-alpha: .05 }
+
+    /* 10% */
+    .bg-rainbow\/10,.text-rainbow\/10,.bg-rainbow-radial\/10,.border-rainbow\/10,
+    .shadow-rainbow\/10,.shadow-rainbow-inset\/10,.rainbow-frame\/10,
+    .rainbow-dashed\/10,.border-alternating\/10,.rainbow-dotted\/10{ --tw-custom-alpha: .10 }
+
+    /* 20% */
+    .bg-rainbow\/20,.text-rainbow\/20,.bg-rainbow-radial\/20,.border-rainbow\/20,
+    .shadow-rainbow\/20,.shadow-rainbow-inset\/20,.rainbow-frame\/20,
+    .rainbow-dashed\/20,.border-alternating\/20,.rainbow-dotted\/20{ --tw-custom-alpha: .20 }
+
+    /* 30% */
+    .bg-rainbow\/30,.text-rainbow\/30,.bg-rainbow-radial\/30,.border-rainbow\/30,
+    .shadow-rainbow\/30,.shadow-rainbow-inset\/30,.rainbow-frame\/30,
+    .rainbow-dashed\/30,.border-alternating\/30,.rainbow-dotted\/30{ --tw-custom-alpha: .30 }
+
+    /* 40% */
+    .bg-rainbow\/40,.text-rainbow\/40,.bg-rainbow-radial\/40,.border-rainbow\/40,
+    .shadow-rainbow\/40,.shadow-rainbow-inset\/40,.rainbow-frame\/40,
+    .rainbow-dashed\/40,.border-alternating\/40,.rainbow-dotted\/40{ --tw-custom-alpha: .40 }
+
+    /* 50% */
+    .bg-rainbow\/50,.text-rainbow\/50,.bg-rainbow-radial\/50,.border-rainbow\/50,
+    .shadow-rainbow\/50,.shadow-rainbow-inset\/50,.rainbow-frame\/50,
+    .rainbow-dashed\/50,.border-alternating\/50,.rainbow-dotted\/50{ --tw-custom-alpha: .50 }
+
+    /* 60% */
+    .bg-rainbow\/60,.text-rainbow\/60,.bg-rainbow-radial\/60,.border-rainbow\/60,
+    .shadow-rainbow\/60,.shadow-rainbow-inset\/60,.rainbow-frame\/60,
+    .rainbow-dashed\/60,.border-alternating\/60,.rainbow-dotted\/60{ --tw-custom-alpha: .60 }
+
+    /* 70% */
+    .bg-rainbow\/70,.text-rainbow\/70,.bg-rainbow-radial\/70,.border-rainbow\/70,
+    .shadow-rainbow\/70,.shadow-rainbow-inset\/70,.rainbow-frame\/70,
+    .rainbow-dashed\/70,.border-alternating\/70,.rainbow-dotted\/70{ --tw-custom-alpha: .70 }
+
+    /* 75% */
+    .bg-rainbow\/75,.text-rainbow\/75,.bg-rainbow-radial\/75,.border-rainbow\/75,
+    .shadow-rainbow\/75,.shadow-rainbow-inset\/75,.rainbow-frame\/75,
+    .rainbow-dashed\/75,.border-alternating\/75,.rainbow-dotted\/75{ --tw-custom-alpha: .75 }
+
+    /* 80% */
+    .bg-rainbow\/80,.text-rainbow\/80,.bg-rainbow-radial\/80,.border-rainbow\/80,
+    .shadow-rainbow\/80,.shadow-rainbow-inset\/80,.rainbow-frame\/80,
+    .rainbow-dashed\/80,.border-alternating\/80,.rainbow-dotted\/80{ --tw-custom-alpha: .80 }
+
+    /* 90% */
+    .bg-rainbow\/90,.text-rainbow\/90,.bg-rainbow-radial\/90,.border-rainbow\/90,
+    .shadow-rainbow\/90,.shadow-rainbow-inset\/90,.rainbow-frame\/90,
+    .rainbow-dashed\/90,.border-alternating\/90,.rainbow-dotted\/90{ --tw-custom-alpha: .90 }
+
+    /* 95% */
+    .bg-rainbow\/95,.text-rainbow\/95,.bg-rainbow-radial\/95,.border-rainbow\/95,
+    .shadow-rainbow\/95,.shadow-rainbow-inset\/95,.rainbow-frame\/95,
+    .rainbow-dashed\/95,.border-alternating\/95,.rainbow-dotted\/95{ --tw-custom-alpha: .95 }
+
+    /* 100% */
+    .bg-rainbow\/100,.text-rainbow\/100,.bg-rainbow-radial\/100,.border-rainbow\/100,
+    .shadow-rainbow\/100,.shadow-rainbow-inset\/100,.rainbow-frame\/100,
+    .rainbow-dashed\/100,.border-alternating\/100,.rainbow-dotted\/100{ --tw-custom-alpha: 1 }
+
+    .rainbow-blur-0  { --tw-rainbow-blur: 0 }
+    .rainbow-blur-sm { --tw-rainbow-blur: 12px }
+    .rainbow-blur    { --tw-rainbow-blur: 24px }
+    .rainbow-blur-lg { --tw-rainbow-blur: 40px }
+    .rainbow-blur-xl { --tw-rainbow-blur: 80px }
+
+    /* =====  Rainbow Speed utilities  =====
+       mirrors Tailwind’s common duration scale; use .rainbow-speed-500, etc.
+    */
+    .rainbow-speed-75  { --tw-rainbow-speed: calc(75ms * var(--tw-rainbow-speed-factor, 1)); }
+    .rainbow-speed-100 { --tw-rainbow-speed: calc(100ms * var(--tw-rainbow-speed-factor, 1)) }
+    .rainbow-speed-150 { --tw-rainbow-speed: calc(150ms * var(--tw-rainbow-speed-factor, 1)) }
+    .rainbow-speed-200 { --tw-rainbow-speed: calc(200ms * var(--tw-rainbow-speed-factor, 1)) }
+    .rainbow-speed-300 { --tw-rainbow-speed: calc(300ms * var(--tw-rainbow-speed-factor, 1)) }
+    .rainbow-speed-500 { --tw-rainbow-speed: calc(500ms * var(--tw-rainbow-speed-factor, 1)) }
+    .rainbow-speed-700 { --tw-rainbow-speed: calc(700ms * var(--tw-rainbow-speed-factor, 1)) }
+    .rainbow-speed-1000{ --tw-rainbow-speed: calc(1000ms * var(--tw-rainbow-speed-factor, 1)) }
+
+    .rainbow-speed-factor-* { --tw-rainbow-speed-factor: --value(integer)}
+}
+
+
+@layer components {
+    .btn-primary {
+        @apply py-2 px-4 rounded bg-blue-600 text-white font-bold text-shadow-md shadow-md/20 transition-colors transition-shadow hover:shadow-lg/70 hover:shadow-blue-700 hover:bg-gradient-to-r hover:from-blue-600 hover:via-blue-400 hover:to-blue-600 active:from-blue-600 active:via-blue-700 active:to-blue-600 disabled:opacity-60;
+    }
+
+    .btn-danger {
+        @apply py-2 px-4 rounded bg-red-600 hover:bg-red-500 text-white font-bold text-shadow-md shadow-md/20 hover:shadow-lg/70 hover:shadow-red-500 hover:bg-gradient-to-r hover:from-red-600 hover:via-red-400 hover:to-red-600 active:from-red-600 active:via-red-700 active:to-red-600 disabled:opacity-60;
+    }
+
+    .mute-user-button {
+        @apply hidden group-hover/user:block ml-2 px-1 text-red-600 rounded border border-red-500 bg-red-300 hover:bg-red-400 disabled:opacity-60
+    }
+
+    .vote-skip-panel {
+        @apply p-4 bg-yellow-200/60 shadow-lg border border-yellow-300 opacity-70 border-4 rounded mb-2 flex md:flex-row flex-col items-center md:gap-2 gap-4
+    }
+
+    .vote-mute-panel {
+        @apply p-4 bg-red-200/60 shadow-lg border border-red-500 opacity-70 border-4 rounded mb-2 flex md:flex-row flex-col items-center md:gap-2 gap-4
+    }
+
+    .btn-vote-yes {
+        @apply pl-1 pr-2 py-1 shadow-md/10 text-shadow-sm bg-green-600 hover:bg-green-500/70 active:bg-green-700 text-white font-bold rounded rounded-l-full rounded-r-sm flex items-center disabled:opacity-40 disabled:pointer-events-none
+    }
+
+    .btn-vote-no {
+        @apply pl-2 pr-1 py-1 shadow-md text-shadow-sm bg-red-500 hover:bg-red-400 active:bg-red-600 text-white font-bold rounded rounded-r-full rounded-l-sm flex items-center justify-center disabled:opacity-40 disabled:pointer-events-none
+    }
+
+    .vote-yes-counter {
+        @apply w-8 h-8 mr-2 bg-green-200 text-green-600 font-bold rounded-full flex items-center justify-center
+    }
+
+    .vote-no-counter {
+         @apply w-8 h-8 ml-2 bg-red-200 text-red-500 font-bold rounded-full flex items-center justify-center
+     }
+
+    .input {
+        @apply p-2 rounded border-gray-300 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-600 dark:hover:bg-gray-500 shadow-md/20 dark:text-gray-100 dark:placeholder:text-gray-300 placeholder:font-normal placeholder:italic font-semibold disabled:opacity-60;
+    }
+
+    .panel {
+        @apply p-4 rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-gray-100 shadow-lg/10 opacity-70;
+    }
+
+    .sub-panel {
+        @apply py-2 px-4 rounded bg-gray-300 dark:bg-gray-600 dark:text-gray-100 shadow-lg/10 font-bold;
+    }
+}

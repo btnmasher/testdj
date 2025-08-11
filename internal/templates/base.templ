@@ -1,0 +1,41 @@
+package templates
+
+import (
+    "fmt"
+    "os"
+    "time"
+)
+
+templ Base() {
+    {{ prod := os.Getenv("env") == "production" }}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>TEST DJ</title>
+        if prod {
+            <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.3/sse.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		 	<link rel="stylesheet" href={fmt.Sprintf("/css/style.min.css?nocache=%v", time.Now().Unix()) }>
+        } else {
+            <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.3/sse.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		 	<link rel="stylesheet" href="/css/style.css">
+        }
+        <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
+        <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/img/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+        <link rel="manifest" href="/site.webmanifest">
+    </head>
+
+    <body class="bg-gray-200 dark:bg-gray-900 text-gray-900 max-h-1vh">
+        <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10 bg-[url('/img/dj-rex.png')] bg-cover bg-center opacity-30 overflow-hidden"></div>
+        <div id="toast-container" class="fixed top-0 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-xl p-4 flex flex-col items-center space-y-2"></div>
+        { children... }
+    </body>
+
+    <script src={fmt.Sprintf("/js/helpers.js?nocache=%v", time.Now().Unix()) }></script>
+    </html>
+}

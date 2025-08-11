@@ -1,0 +1,39 @@
+package templates
+
+import (
+    "github.com/btnmasher/testdj/internal/dj"
+)
+
+templ JoinLobbyPage(lobby *dj.Lobby) {
+    @Base() {
+        if lobby == nil {
+            @ErrorPage("Invalid Lobby Code", "The lobby you’re trying to join doesn’t exist or has expired.")
+        } else {
+            <main class="min-h-screen flex justify-center items-center">
+                <div class="mx-8 sm:max-w-xl sm:mx-auto grow">
+                    <h1 class="text-3xl font-bold mb-4 text-center dark:text-gray-200">Join Lobby</h1>
+                    <form
+                        action={"/join/" + lobby.ID }
+                        method="POST"
+                        class="panel space-y-4">
+                        <label class="block">
+                            Name:
+                            <input
+                                type="text"
+                                name="name"
+                                pattern="[A-Za-z0-9]+"
+                                title="Alphanumeric only, no spaces"
+                                class="input mt-1 w-full"
+                                required />
+                        </label>
+                        <button
+                            type="submit"
+                            class="btn-primary w-full">
+                            Enter Lobby
+                        </button>
+                    </form>
+                </div>
+            </main>
+       }
+   }
+}

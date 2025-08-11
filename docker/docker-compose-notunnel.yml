@@ -1,0 +1,14 @@
+# ./docker/docker-compose-notunnel.yml (No tunneling configuration)
+
+services:
+  testdj:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "${LISTEN_PORT:-8080}:8080"
+    environment:
+      - ENVIRONMENT=production
+      - LISTEN_ADDR=${LISTEN_ADDR:-}
+      - LISTEN_PORT=${LISTEN_PORT:-8080}
+    restart: unless-stopped

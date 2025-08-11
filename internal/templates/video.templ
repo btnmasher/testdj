@@ -1,0 +1,49 @@
+package templates
+
+import (
+    "fmt"
+    "time"
+    "html"
+    "github.com/btnmasher/testdj/internal/dj"
+)
+
+templ VideoPartial(lobby *dj.Lobby) {
+    <div class="rounded-lg shadow-rainbow mb-4 h-[33vh]">
+        if lobby.CurrentVideo != nil {
+            <iframe
+                class="w-full h-full rounded-lg"
+                id="ytplayer"
+                src={fmt.Sprintf("%s&start=%v", lobby.CurrentVideo.URL, int(time.Now().Sub(lobby.VideoStart).Seconds()))}
+                allow="autoplay; encrypted-media"
+                allowfullscreen>
+            </iframe>
+
+        } else {
+            <div class="rounded-lg w-full h-full bg-gray-800 flex items-center justify-center text-white text-xl">
+                No video playing
+            </div>
+        }
+    </div>
+    if lobby.CurrentVideo != nil {
+        <div class="panel mb-2 py-2 px-4 flex items-center">
+            <div class="my-2 space-x-1">
+                <span class="text-xl font-semibold text-gray-500 dark:text-gray-300">Currently Playing:</span>
+                <span class="text-xl font-bold text-gray-600 dark:text-gray-200">{" " + html.UnescapeString(lobby.CurrentVideo.Title)}</span>
+                <div>
+                    <span class="text-md font-semibold text-gray-500 dark:text-gray-300">Submitted by:</span>
+                    <span class="text-lg font-bold text-gray-600 dark:text-gray-200">{lobby.CurrentVideo.SubmitterName}</span>
+                </div>
+            </div>
+            <div class="ml-auto">
+                <button
+                    hx-post={"/lobby/" + lobby.ID + "/vote/skip/start"}
+                    hx-disabled-elt="this"
+                    hx-swap="none"
+                    class="btn-danger shrink-0 whitespace-nowrap"
+                    disabled?={lobby.VoteSkip.Active}>
+                    Vote to Skip
+                </button>
+             </div>
+        </div>
+    }
+}

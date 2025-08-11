@@ -1,0 +1,41 @@
+package templates
+
+import (
+    "time"
+    "github.com/btnmasher/testdj/internal/dj"
+)
+
+templ UsersPartial(lobby *dj.Lobby, self *dj.User) {
+    <ul class="space-y-2">
+        for u := range lobby.Users.Values() {
+            <li class="sub-panel group/user flex items-center justify-between font-bold">
+                <span class="my-1">{u.Name}</span>
+                if lobby.MutesByIP.Exists(u.IP) {
+                    <button class="px-1 text-red-600 rounded border border-red-500 bg-red-300 disabled:opacity-60"
+                        title="User muted"
+                        disabled>
+                        &#x1F507;&#xFE0E;
+                    </button>
+                } else if self != nil && self.ID != u.ID && !lobby.VoteMute.Active {
+                    if cd, ok := lobby.MuteCooldownsByIP.Get(self.IP); ok && time.Now().Before(cd) {
+                        <button class="hidden group-hover/user:block px-1 text-gray-400 rounded border border-gray-500 bg-gray-200 ml-2 disabled:opacity-60 cursor-not-allowed"
+                            title="You're on cooldown"
+                            disabled>
+                            &#x1F507;&#xFE0E;
+                        </button>
+                    } else {
+                        <button
+                            hx-post={"/lobby/" + lobby.ID + "/vote/mute/start"}
+                            hx-vals={`{"target":"` + u.ID + `"}`}
+                            hx-swap="none"
+                            hx-disabled-elt="this"
+                            class="[display:var(--mobile-display,none)] group-hover/user:block ml-2 px-1 text-red-600 rounded border border-red-500 bg-red-300 hover:bg-red-400 disabled:opacity-60"
+                            title="Vote to mute this user">
+                            &#x1F507;&#xFE0E;
+                        </button>
+                    }
+                }
+            </li>
+        }
+    </ul>
+}

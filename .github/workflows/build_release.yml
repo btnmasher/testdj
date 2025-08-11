@@ -1,0 +1,68 @@
+# .github/workflows/build_release.yaml
+name: "Build Release"
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  releases-matrix:
+    name: Release Go Binary
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # build and publish in parallel: linux/amd64, linux/arm64, windows/amd64, darwin/amd64, darwin/arm64
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64]
+        exclude:
+          - goarch: amd64
+            goos: darwin
+          - goarch: arm64
+            goos: windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          check-latest: true
+
+      - name: Install Tailwind CLI
+        shell: bash
+        run: |
+          DIR=$(pwd)
+          TAG=$(gh release view -R tailwindlabs/tailwindcss --json tagName -q .tagName)
+          gh release download $TAG -R tailwindlabs/tailwindcss  -p 'tailwindcss-linux-x64' -O $DIR/tailwindcss --clobber
+          chmod +x $DIR/tailwindcss
+          $DIR/tailwindcss --help >/dev/null
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install templ
+        run: |
+          DIR=$(pwd)
+          GOBIN=$DIR go install github.com/a-h/templ/cmd/templ@latest
+          $DIR/templ version >/dev/null
+
+      - name: Generate Templates and CSS
+        shell: bash
+        run: |
+          DIR=$(pwd)
+          $DIR/templ generate
+          $DIR/tailwindcss -i $DIR/input.css -o $DIR/static/css/style.min.css --minify
+
+      - name: Build Binaries
+        uses: wangyoucao577/go-release-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          project_path: "/home/runner/work/testdj/testdj"
+          binary_name: "testdj"
+          extra_files: LICENSE README.md
+          ldflags: "-s -w -X main.Environment=production"

@@ -1,0 +1,119 @@
+package templates
+
+import (
+    "github.com/btnmasher/testdj/internal/dj"
+)
+
+templ LobbyPage(lobby *dj.Lobby, user *dj.User) {
+    @Base() {
+        <main hx-ext="sse" sse-connect={"/sse/" + lobby.ID } class="p-4 w-3/4 mx-auto mb-4">
+            <div
+                id="sse-drain"
+                hx-trigger="sse:vote_mute_end, vote_skip_end, sse:lobby_expired, sse:toast, sse:redirect">
+            </div>
+
+            <div
+                id="heartbeat-ticker"
+                hx-post={"/lobby/" + lobby.ID + "/heartbeat"}
+                hx-trigger="every 30s"
+                hx-swap="none">
+            </div>
+
+            <div
+                id="video-container"
+                hx-trigger="sse:video_update"
+                hx-get={"/lobby/" + lobby.ID + "/video"}
+                hx-swap="innerHTML">
+                @VideoPartial(lobby)
+            </div>
+
+            <div
+                id="vote-panel"
+                hx-trigger="sse:vote_skip_update, sse:vote_skip_end, sse:vote_mute_update, sse:vote_mute_end"
+                hx-get={"/lobby/" + lobby.ID + "/votes"}
+                hx-swap="innerHTML"
+                hx-on::after-swap="initCountdown('skip-timer'), initCountdown('mute-timer')">
+                @VotesPartial(lobby, user)
+            </div>
+
+            <div class="flex flex-wrap gap-4 max-h-full">
+                <div class="w-full lg:w-1/3 order-2 lg:order-1">
+                    <h2 class="text-xl font-bold mb-2 text-center lg:text-left dark:text-gray-200">Users</h2>
+                    <div class="panel space-y-4">
+                        <div
+                            id="user-list"
+                            class="grow"
+                            hx-trigger="sse:users_update, sse:vote_mute_update, sse:vote_mute_end"
+                            hx-get={"/lobby/" + lobby.ID + "/users"}
+                            hx-swap="innerHTML">
+                            @UsersPartial(lobby, user)
+                        </div>
+                        <div class="flex">
+                            <button
+                                class="btn-primary anim-button md:flex-none grow grid grid-cols-1 grid-rows-1 place-items-center inset-ring inset-ring-0 inset-ring-green-600"
+                                hx-on:click={templ.JSFuncCall("copyInviteURL", templ.JSExpression("event"), lobby.ID)}>
+                                <div class="anim-button-text col-start-1 row-start-1 text-center leading-none">
+                                    Copy Invite Code
+                                </div>
+                                <div class="success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="size-7 text-green-600"
+                                        viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M16.7 5.7l-7.7 8-3.7-3.7" />
+                                    </svg>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-1/2 lg:ml-auto order-1 lg:order-2 max-h-full bottom-0">
+                    <h2 class="text-xl lg:text-right text-center font-bold mb-2 dark:text-gray-200">Playlist</h2>
+                    <div class="panel space-y-4 flex-1 min-h-0 overflow-y-auto overscroll-contain">
+                        <div
+                            id="playlist"
+                            hx-trigger="sse:playlist_update, sse:video_update"
+                            hx-get={"/lobby/" + lobby.ID + "/playlist"}
+                            hx-swap="innerHTML">
+                            @PlaylistPartial(lobby)
+                        </div>
+                        <form
+                            hx-post={"/lobby/" + lobby.ID + "/add"}
+                            hx-trigger="submit"
+                            hx-swap="none"
+                            hx-disabled-elt="find input[type='text'], find button"
+                            hx-on::after-on-Load="triggerSuccessAnim(this, event);"
+                            class="space-y-2 sticky bottom-0 z-10">
+                            <div class="flex flex-wrap items-center gap-4">
+                                <input
+                                    type="text"
+                                    name="url"
+                                    placeholder="YouTube URL"
+                                    class="input text-sm placeholder:text-base grow"
+                                    required/>
+                                <button
+                                    id="add-video-button"
+                                    class="btn-primary anim-button disabled:cursor-not-allowed grow grid grid-cols-1 grid-rows-1 place-items-center inset-ring inset-ring-0 inset-ring-green-600"
+                                    type="submit">
+                                    <div class="anim-button-text col-start-1 row-start-1 text-center leading-none">
+                                        Add Video
+                                    </div>
+                                    <div class="success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="size-7 text-green-600"
+                                            viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M16.7 5.7l-7.7 8-3.7-3.7" />
+                                        </svg>
+                                    </div>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script src="/js/logout.js"></script>
+    }
+}
