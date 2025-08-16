@@ -3,7 +3,6 @@ package templates
 import (
     "fmt"
     "os"
-    "time"
 )
 
 templ Base() {
@@ -17,11 +16,11 @@ templ Base() {
         if prod {
             <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
             <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.3/sse.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-		 	<link rel="stylesheet" href={fmt.Sprintf("/css/style.min.css?nocache=%v", time.Now().Unix()) }>
+		 	<link rel="stylesheet" href={fmt.Sprintf("/css/style.min.css?nocache=%v", os.Getenv("githash")) }>
         } else {
             <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
             <script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.3/sse.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-		 	<link rel="stylesheet" href="/css/style.css">
+		 	<link rel="stylesheet" href={fmt.Sprintf("/css/style.css?nocache=%v", os.Getenv("githash")) }>
         }
         <link rel="icon" type="image/x-icon" href="/img/favicon.ico">
         <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/img/apple-touch-icon.png">
@@ -35,6 +34,6 @@ templ Base() {
         { children... }
     </body>
 
-    <script src={fmt.Sprintf("/js/helpers.js?nocache=%v", time.Now().Unix()) }></script>
+    <script src={fmt.Sprintf("/js/helpers.js?nocache=%v", os.Getenv("githash")) }></script>
     </html>
 }

@@ -1,6 +1,9 @@
 package templates
 
 import (
+    "fmt"
+    "os"
+
     "github.com/btnmasher/testdj/internal/dj"
 )
 
@@ -119,6 +122,6 @@ templ LobbyPage(lobby *dj.Lobby, user *dj.User) {
                 </div>
             </div>
         </main>
-        <script src="/js/logout.js"></script>
+        <script src={ fmt.Sprintf("/js/logout.js?nocache=%v", os.Getenv("githash")) }></script>
     }
 }

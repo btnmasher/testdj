@@ -52,6 +52,7 @@ var levelMap = map[string]slog.Level{
 
 func init() {
 	os.Setenv("env", ReleaseType)
+	os.Setenv("githash", CommitHash)
 }
 
 func getLogLevel() slog.Level {
