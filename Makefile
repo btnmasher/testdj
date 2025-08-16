@@ -101,7 +101,7 @@ run: build-dev
 generate: templ-generate tailwind-generate
 
 .PHONY: generate-dev
-generate: templ-generate tailwind-generate-dev
+generate-dev: templ-generate tailwind-generate-dev
 
 .PHONY: build-dev
 build-dev: tidy
