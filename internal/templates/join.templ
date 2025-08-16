@@ -11,18 +11,19 @@ templ JoinLobbyPage(lobby *dj.Lobby) {
         } else {
             <main class="min-h-screen flex justify-center items-center">
                 <div class="mx-8 sm:max-w-xl sm:mx-auto grow">
-                    <h1 class="text-3xl font-bold mb-4 text-center dark:text-gray-200">Join Lobby</h1>
+                    <h1 class="text-3xl font-bold mb-4 text-center dark:text-gray-200">Joining Lobby</h1>
                     <form
                         action={"/join/" + lobby.ID }
                         method="POST"
                         class="panel space-y-4">
                         <label class="block">
-                            Name:
+                            Username:
                             <input
                                 type="text"
                                 name="name"
-                                pattern="[A-Za-z0-9]+"
-                                title="Alphanumeric only, no spaces"
+                                pattern="[A-Za-z0-9](?:[A-Za-z0-9 ]{0,18}[A-Za-z0-9])?"
+                                maxlength="20"
+                                title="1–20 letters/numbers; spaces allowed only between characters"
                                 class="input mt-1 w-full"
                                 required />
                         </label>

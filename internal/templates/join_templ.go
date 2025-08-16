@@ -51,7 +51,7 @@ func JoinLobbyPage(lobby *dj.Lobby) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"min-h-screen flex justify-center items-center\"><div class=\"mx-8 sm:max-w-xl sm:mx-auto grow\"><h1 class=\"text-3xl font-bold mb-4 text-center dark:text-gray-200\">Join Lobby</h1><form action=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"min-h-screen flex justify-center items-center\"><div class=\"mx-8 sm:max-w-xl sm:mx-auto grow\"><h1 class=\"text-3xl font-bold mb-4 text-center dark:text-gray-200\">Joining Lobby</h1><form action=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -64,7 +64,7 @@ func JoinLobbyPage(lobby *dj.Lobby) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" method=\"POST\" class=\"panel space-y-4\"><label class=\"block\">Name: <input type=\"text\" name=\"name\" pattern=\"[A-Za-z0-9]+\" title=\"Alphanumeric only, no spaces\" class=\"input mt-1 w-full\" required></label> <button type=\"submit\" class=\"btn-primary w-full\">Enter Lobby</button></form></div></main>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" method=\"POST\" class=\"panel space-y-4\"><label class=\"block\">Username: <input type=\"text\" name=\"name\" pattern=\"[A-Za-z0-9](?:[A-Za-z0-9 ]{0,18}[A-Za-z0-9])?\" maxlength=\"20\" title=\"1–20 letters/numbers; spaces allowed only between characters\" class=\"input mt-1 w-full\" required></label> <button type=\"submit\" class=\"btn-primary w-full\">Enter Lobby</button></form></div></main>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

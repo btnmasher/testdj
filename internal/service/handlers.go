@@ -27,6 +27,8 @@ const (
 	ContextLogger  = "logger"
 )
 
+const MaxNameLength = 20
+
 var ignoredPaths = []string{
 	"/heartbeat",
 	"/logout",
@@ -284,7 +286,7 @@ func HandleCreateLobby(w http.ResponseWriter, r *http.Request) {
 	logger := mustGetLogger(r)
 
 	name := r.FormValue("name")
-	if name == "" || !idRegex.MatchString(name) {
+	if name == "" || len(name) > MaxNameLength || !nameRegex.MatchString(name) {
 		respondWithToast("Invalid User Name", "error", w)
 		http.Error(w, "invalid user name", http.StatusBadRequest)
 		return
@@ -399,7 +401,7 @@ func HandleJoinLobby(w http.ResponseWriter, r *http.Request) {
 	}
 
 	name := r.FormValue("name")
-	if name == "" || !idRegex.MatchString(name) {
+	if name == "" || len(name) > MaxNameLength || !nameRegex.MatchString(name) {
 		respondWithToast("Invalid User Name", "error", w)
 		http.Error(w, "invalid user name", http.StatusBadRequest)
 		return

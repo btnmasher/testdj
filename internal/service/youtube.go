@@ -21,7 +21,7 @@ var (
 	durationRegex = regexp.MustCompile(`(?i)<meta\s+itemprop=(?:"|')duration(?:"|')\s+content=(?:"|')([^"']+)(?:"|')`)
 	titleRegex    = regexp.MustCompile(`(?i)<meta\s+(?:name|property)=(?:"|')(?:og:)?title(?:"|')\s+content=(?:"|')([^"']+)(?:"|')`)
 	iso8601Regex  = regexp.MustCompile(`PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?`)
-	idRegex       = regexp.MustCompile(`^[A-Za-z0-9]+$`)
+	nameRegex     = regexp.MustCompile(`^[A-Za-z0-9](?:[A-Za-z0-9 ]{0,18}[A-Za-z0-9])?$`)
 )
 
 // Errors
