@@ -61,7 +61,7 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"p-4 w-3/4 mx-auto lg:h-full flex flex-col\"><div id=\"sse-drain\" hx-trigger=\"sse:vote_mute_end, vote_skip_end, sse:lobby_expired, sse:toast, sse:redirect\"></div><div id=\"heartbeat-ticker\" hx-post=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"p-4 md:w-3/4 mx-auto lg:h-full flex flex-col\"><div id=\"sse-drain\" hx-trigger=\"sse:vote_mute_end, vote_skip_end, sse:lobby_expired, sse:toast, sse:redirect\"></div><div id=\"heartbeat-ticker\" hx-post=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

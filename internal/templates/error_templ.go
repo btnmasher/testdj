@@ -76,7 +76,7 @@ func ErrorPartial(title, message string) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"min-h-screen grid place-items-center bg-caution backdrop-blur-md\"><div class=\"m-auto panel opacity-90 p-0\"><div class=\"text-center flex flex-col items-center dark:text-gray-100 p-8 rounded border-4 border-red-600 border-marching space-y-8\"><h1 class=\"text-3xl font-bold text-red-500 text-shadow-lg/20\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<main class=\"min-h-screen grid place-items-center bg-caution backdrop-blur-md\"><div class=\"m-auto panel opacity-90 p-0\"><div class=\"text-center flex flex-col items-center dark:text-gray-100 p-8 rounded border-4 border-red-600 border-marching anim-dir-reverse space-y-8\"><h1 class=\"text-3xl font-bold text-red-500 text-shadow-lg/20\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
