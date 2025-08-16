@@ -730,6 +730,22 @@
 
 
 @layer components {
+    .body-bg-img {
+        position: relative;
+        isolation: isolate;
+
+        &:before {
+            content: "";
+            min-height: 100%;
+            min-width: 100%;
+            position: fixed;
+            background: center / cover no-repeat url('/img/dj-rex.png');
+            opacity: .3;
+            z-index:-10;
+            pointer-events: none;
+        }
+    }
+
     .btn-primary {
         @apply py-2 px-4 rounded bg-blue-600 text-white font-bold text-shadow-md shadow-md/20 transition-colors transition-shadow hover:shadow-lg/70 hover:shadow-blue-700 hover:bg-gradient-to-r hover:from-blue-600 hover:via-blue-400 hover:to-blue-600 active:from-blue-600 active:via-blue-700 active:to-blue-600 disabled:opacity-60;
     }

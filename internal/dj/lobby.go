@@ -2,7 +2,6 @@ package dj
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -383,16 +382,10 @@ func (l *Lobby) PickNextVideo() {
 	// Set current and signal change
 	l.CurrentVideo = next
 	l.VideoStart = time.Now()
-	state := map[string]any{
-		"url":      l.CurrentVideo.URL,
-		"mode":     l.Mode,
-		"playlist": l.Videos,
-	}
 
 	log.Debug("Next video selected", next.Log())
 
-	data, _ := json.Marshal(state)
-	l.Broadcast("video_update", string(data))
+	l.Broadcast("video_update", "")
 
 	l.nextTimer.Reset(l.CurrentVideo.Duration)
 }

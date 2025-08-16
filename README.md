@@ -25,7 +25,7 @@ All assets are embedded in the binary so you can run it as a single executable (
 ### Install TailwindCSS and Templ
 
 ```bash
-  make install-tools
+make install-tools
 ```
 
 ### Production build
@@ -43,7 +43,7 @@ make build-dev
 or
 
 ```bash
-   make run
+make run
 ```
 Builds a development binary (with the race detector) in `./bin/`.
 

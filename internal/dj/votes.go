@@ -1,7 +1,6 @@
 package dj
 
 import (
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"time"
@@ -151,12 +150,7 @@ func (l *Lobby) RecordSkipVote(user *User, vote string) bool {
 
 func (l *Lobby) BroadcastVoteSkipStatus() {
 	if l.VoteSkip.Active {
-		data, _ := json.Marshal(map[string]any{
-			"yes":       l.VoteSkip.YesVotes.Length(),
-			"no":        l.VoteSkip.NoVotes.Length(),
-			"expiresAt": l.VoteSkip.StartedAt.Add(30 * time.Second).Unix(),
-		})
-		l.Broadcast("vote_skip_update", string(data))
+		l.Broadcast("vote_skip_update", "")
 	} else {
 		l.Broadcast("vote_skip_end", "")
 	}
@@ -164,12 +158,7 @@ func (l *Lobby) BroadcastVoteSkipStatus() {
 
 func (l *Lobby) BroadcastVoteMuteStatus() {
 	if l.VoteMute.Active {
-		data, _ := json.Marshal(map[string]any{
-			"yes":       l.VoteMute.YesVotes.Length(),
-			"no":        l.VoteMute.NoVotes.Length(),
-			"expiresAt": l.VoteMute.StartedAt.Add(30 * time.Second).Unix(),
-		})
-		l.Broadcast("vote_mute_update", string(data))
+		l.Broadcast("vote_mute_update", "")
 	} else {
 		l.Broadcast("vote_mute_end", "")
 	}

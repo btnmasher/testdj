@@ -66,7 +66,10 @@
         }
     }
 
+    document.body.classList.add('lg:overflow-hidden');
+
     window.addEventListener('beforeunload', function () {
+        document.body.classList.remove('overflow-hidden');
         send({ reason: 'tab_close' });
     }, { capture: true });
 })();

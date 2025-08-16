@@ -46,7 +46,7 @@ templ VotesPartial(lobby *dj.Lobby, user *dj.User) {
 
         if lobby.VoteMute.Active {
             <div class="vote-mute-panel border-marching">
-                <div class="font-bold text-shadow-sm">Vote to mute<span class="font-extrabold">{" sdfgdsf " + lobby.VoteMute.TargetName}</span>{" for "} 10 minutes</div>
+                <div class="font-bold text-shadow-sm">Vote to mute<span class="font-extrabold">{" " + lobby.VoteMute.TargetName}</span>{" for "} 10 minutes</div>
 
                 <div class="flex space-x-2">
                     <button

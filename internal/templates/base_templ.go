@@ -48,7 +48,7 @@ func Base() templ.Component {
 			var templ_7745c5c3_Var2 templ.SafeURL
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinURLErrs(fmt.Sprintf("/css/style.min.css?nocache=%v", time.Now().Unix()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `base.templ`, Line: 20, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/base.templ`, Line: 20, Col: 96}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -64,7 +64,7 @@ func Base() templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<link rel=\"icon\" type=\"image/x-icon\" href=\"/img/favicon.ico\"><link rel=\"apple-touch-icon\" type=\"image/png\" sizes=\"180x180\" href=\"/img/apple-touch-icon.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/img/favicon-32x32.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/img/favicon-16x16.png\"><link rel=\"manifest\" href=\"/site.webmanifest\"></head><body class=\"bg-gray-200 dark:bg-gray-900 text-gray-900 max-h-1vh\"><div aria-hidden=\"true\" class=\"pointer-events-none absolute inset-0 -z-10 bg-[url('/img/dj-rex.png')] bg-cover bg-center opacity-30 overflow-hidden\"></div><div id=\"toast-container\" class=\"fixed top-0 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-xl p-4 flex flex-col items-center space-y-2\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<link rel=\"icon\" type=\"image/x-icon\" href=\"/img/favicon.ico\"><link rel=\"apple-touch-icon\" type=\"image/png\" sizes=\"180x180\" href=\"/img/apple-touch-icon.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/img/favicon-32x32.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/img/favicon-16x16.png\"><link rel=\"manifest\" href=\"/site.webmanifest\"></head><body class=\"bg-gray-200 dark:bg-gray-900 text-gray-900 h-lvh body-bg-img\"><div id=\"toast-container\" class=\"fixed top-0 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-xl p-4 flex flex-col items-center space-y-2\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -79,7 +79,7 @@ func Base() templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/js/helpers.js?nocache=%v", time.Now().Unix()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `base.templ`, Line: 39, Col: 76}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/base.templ`, Line: 38, Col: 76}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {

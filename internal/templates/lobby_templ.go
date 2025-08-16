@@ -52,20 +52,20 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs("/sse/" + lobby.ID)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `lobby.templ`, Line: 9, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 9, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"p-4 w-3/4 mx-auto mb-4\"><div id=\"sse-drain\" hx-trigger=\"sse:vote_mute_end, vote_skip_end, sse:lobby_expired, sse:toast, sse:redirect\"></div><div id=\"heartbeat-ticker\" hx-post=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"p-4 w-3/4 mx-auto lg:h-full flex flex-col\"><div id=\"sse-drain\" hx-trigger=\"sse:vote_mute_end, vote_skip_end, sse:lobby_expired, sse:toast, sse:redirect\"></div><div id=\"heartbeat-ticker\" hx-post=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs("/lobby/" + lobby.ID + "/heartbeat")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `lobby.templ`, Line: 17, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 17, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -78,7 +78,7 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs("/lobby/" + lobby.ID + "/video")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `lobby.templ`, Line: 25, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 25, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -99,7 +99,7 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs("/lobby/" + lobby.ID + "/votes")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `lobby.templ`, Line: 33, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 33, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -113,14 +113,14 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div class=\"flex flex-wrap gap-4 max-h-full\"><div class=\"w-full lg:w-1/3 order-2 lg:order-1\"><h2 class=\"text-xl font-bold mb-2 text-center lg:text-left dark:text-gray-200\">Users</h2><div class=\"panel space-y-4\"><div id=\"user-list\" class=\"grow\" hx-trigger=\"sse:users_update, sse:vote_mute_update, sse:vote_mute_end\" hx-get=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><div id=\"under-video\" class=\"flex flex-wrap gap-4 flex-1 lg:min-h-0 lg:max-h-full lg:items-stretch pb-4\"><div id=\"userlist-container\" class=\"w-full lg:w-1/3 order-2 lg:order-1 flex flex-col lg:h-full min-h-0\"><h2 class=\"text-xl font-bold mb-2 text-center lg:text-left dark:text-gray-200 shrink-0\">Users</h2><div id=\"userlist-scroll\" class=\"panel lg:max-h-full overflow-hidden\"><div class=\"grid grid-rows-[1fr_auto] min-h-0 lg:max-h-full\"><div id=\"userlist\" class=\"min-h-0 lg:overflow-y-auto lg:overscroll-contain\" hx-trigger=\"sse:users_update, sse:vote_mute_update, sse:vote_mute_end\" hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs("/lobby/" + lobby.ID + "/users")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `lobby.templ`, Line: 47, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 48, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -134,7 +134,7 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"flex\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"flex pt-4 shrink-0 bg-gray-200 dark:bg-gray-700 dark:text-gray-100 z-10\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -151,14 +151,14 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><div class=\"anim-button-text col-start-1 row-start-1 text-center leading-none\">Copy Invite Code</div><div class=\"success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"size-7 text-green-600\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16.7 5.7l-7.7 8-3.7-3.7\"></path></svg></div></button></div></div></div><div class=\"w-full lg:w-1/2 lg:ml-auto order-1 lg:order-2 max-h-full bottom-0\"><h2 class=\"text-xl lg:text-right text-center font-bold mb-2 dark:text-gray-200\">Playlist</h2><div class=\"panel space-y-4 flex-1 min-h-0 overflow-y-auto overscroll-contain\"><div id=\"playlist\" hx-trigger=\"sse:playlist_update, sse:video_update\" hx-get=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><div class=\"anim-button-text col-start-1 row-start-1 text-center leading-none\">Copy Invite Code</div><div class=\"success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"size-7 text-green-600\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16.7 5.7l-7.7 8-3.7-3.7\"></path></svg></div></button></div></div></div></div><div id=\"playlist-container\" class=\"w-full lg:w-1/2 lg:ml-auto order-1 lg:order-2 flex flex-col lg:h-full min-h-0\"><h2 class=\"text-xl lg:text-right text-center font-bold mb-2 dark:text-gray-200 shrink-0\">Playlist</h2><div id=\"playlist-scroll\" class=\"panel lg:max-h-full overflow-hidden\"><div class=\"grid grid-rows-[1fr_auto] min-h-0 lg:max-h-full\"><div class=\"min-h-0 lg:overflow-y-auto lg:overscroll-contain\" id=\"playlist\" hx-trigger=\"sse:playlist_update, sse:video_update\" hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs("/lobby/" + lobby.ID + "/playlist")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `lobby.templ`, Line: 77, Col: 70}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 81, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -179,13 +179,13 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs("/lobby/" + lobby.ID + "/add")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `lobby.templ`, Line: 82, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 86, Col: 70}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" hx-trigger=\"submit\" hx-swap=\"none\" hx-disabled-elt=\"find input[type='text'], find button\" hx-on::after-on-Load=\"triggerSuccessAnim(this, event);\" class=\"space-y-2 sticky bottom-0 z-10\"><div class=\"flex flex-wrap items-center gap-4\"><input type=\"text\" name=\"url\" placeholder=\"YouTube URL\" class=\"input text-sm placeholder:text-base grow\" required> <button id=\"add-video-button\" class=\"btn-primary anim-button disabled:cursor-not-allowed grow grid grid-cols-1 grid-rows-1 place-items-center inset-ring inset-ring-0 inset-ring-green-600\" type=\"submit\"><div class=\"anim-button-text col-start-1 row-start-1 text-center leading-none\">Add Video</div><div class=\"success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"size-7 text-green-600\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16.7 5.7l-7.7 8-3.7-3.7\"></path></svg></div></button></div></form></div></div></div></main><script src=\"/js/logout.js\"></script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" hx-trigger=\"submit\" hx-swap=\"none\" hx-disabled-elt=\"find input[type='text'], find button\" hx-on::after-on-Load=\"triggerSuccessAnim(this, event);\" class=\"pt-4 space-y-2 shrink-0 bg-gray-200 dark:bg-gray-700 dark:text-gray-100 z-10\"><div class=\"flex flex-wrap items-stretch gap-4 pt-2\"><input type=\"text\" name=\"url\" placeholder=\"YouTube URL\" class=\"input text-sm placeholder:text-base grow\" required> <button id=\"add-video-button\" class=\"btn-primary anim-button disabled:cursor-not-allowed grow grid grid-cols-1 grid-rows-1 place-items-center inset-ring inset-ring-0 inset-ring-green-600\" type=\"submit\"><div class=\"anim-button-text col-start-1 row-start-1 text-center leading-none\">Add Video</div><div class=\"success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"size-7 text-green-600\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16.7 5.7l-7.7 8-3.7-3.7\"></path></svg></div></button></div></form></div></div></div></div></main><script src=\"/js/logout.js\"></script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
