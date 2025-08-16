@@ -11,4 +11,6 @@ services:
       - ENVIRONMENT=production
       - LISTEN_ADDR=${LISTEN_ADDR:-}
       - LISTEN_PORT=${LISTEN_PORT:-8080}
+      - YT_API_KEY=${YT_API_KEY}
+      - USE_SCRAPE=$(USE_SCRAPE:-true)
     restart: unless-stopped

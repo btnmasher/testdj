@@ -15,12 +15,18 @@ import (
 	"time"
 )
 
+// RegEx Patterns
 var (
 	youtubeRegex  = regexp.MustCompile(`^(?:https?://)?(?:www\.|m\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([A-Za-z0-9_-]{11})(?:[?&].*)?$`)
 	durationRegex = regexp.MustCompile(`(?i)<meta\s+itemprop=(?:"|')duration(?:"|')\s+content=(?:"|')([^"']+)(?:"|')`)
 	titleRegex    = regexp.MustCompile(`(?i)<meta\s+(?:name|property)=(?:"|')(?:og:)?title(?:"|')\s+content=(?:"|')([^"']+)(?:"|')`)
 	iso8601Regex  = regexp.MustCompile(`PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?`)
 	idRegex       = regexp.MustCompile(`^[A-Za-z0-9]+$`)
+)
+
+// Errors
+var (
+	ErrAgeRestircted = errors.New("age restircted")
 )
 
 type FetchOption int8
@@ -59,6 +65,10 @@ func fetchVideoMeta(ctx context.Context, videoID string, fetchType FetchOption) 
 		if scrapeErr == nil && dur > 0 && title != "" {
 			return title, dur, nil
 		}
+		if errors.Is(scrapeErr, ErrAgeRestircted) {
+			return "", dur, scrapeErr
+		}
+
 		fallthrough
 	case fetchType.Has(UseDataAPI):
 		// Fallback: official YouTube Data API v3 (requires API key)
@@ -76,14 +86,18 @@ func fetchVideoMeta(ctx context.Context, videoID string, fetchType FetchOption) 
 		if apiErr == nil && dur > 0 && title != "" {
 			return title, dur, nil
 		}
+
+		if errors.Is(scrapeErr, ErrAgeRestircted) {
+			return "", dur, scrapeErr
+		}
 	}
 
 	// Both failed; surface both contexts for logs.
 	switch {
 	case scrapeErr != nil && apiErr != nil:
-		return "", 0, fmt.Errorf("mobile scrape path: %v; official data api: %v", scrapeErr, apiErr)
+		return "", 0, fmt.Errorf("mobile scrape path: %w; official data api: %w", scrapeErr, apiErr)
 	case apiErr != nil:
-		return "", 0, fmt.Errorf("official data api fallback failed: %v", apiErr)
+		return "", 0, fmt.Errorf("official data api fallback failed: %w", apiErr)
 	default:
 		return "", 0, errors.New("failed to obtain metadata")
 	}
@@ -143,12 +157,29 @@ type playerResponse struct {
 	VideoDetails struct {
 		Title         string `json:"title"`
 		LengthSeconds string `json:"lengthSeconds"`
+		// Sometimes present (not guaranteed on all variants):
+		AgeRestricted bool `json:"ageRestricted"`
 	} `json:"videoDetails"`
 	StreamingData struct {
 		AdaptiveFormats []struct {
 			ApproxDurationMs string `json:"approxDurationMs"`
 		} `json:"adaptiveFormats"`
 	} `json:"streamingData"`
+
+	// Age gating often shows up here:
+	PlayabilityStatus struct {
+		Status                     string `json:"status"` // e.g. "OK", "UNPLAYABLE", "LOGIN_REQUIRED", "AGE_VERIFICATION_REQUIRED"
+		Reason                     string `json:"reason"`
+		DesktopLegacyAgeGateReason int    `json:"desktopLegacyAgeGateReason"`
+	} `json:"playabilityStatus"`
+
+	// Microformat rating flags:
+	Microformat struct {
+		PlayerMicroformatRenderer struct {
+			IsFamilySafe bool   `json:"isFamilySafe"` // often false for age-restricted
+			YTRating     string `json:"ytRating"`     // e.g. "ytAgeRestricted"
+		} `json:"playerMicroformatRenderer"`
+	} `json:"microformat"`
 }
 
 // --- Data API types ---
@@ -159,7 +190,10 @@ type ytDataAPIResp struct {
 			Title string `json:"title"`
 		} `json:"snippet"`
 		ContentDetails struct {
-			Duration string `json:"duration"` // ISO 8601, e.g. "PT5M19S"
+			Duration      string `json:"duration"` // ISO 8601, e.g. "PT5M19S"
+			ContentRating struct {
+				YTRating string `json:"ytRating"` // "ytAgeRestricted" or empty
+			} `json:"contentRating"`
 		} `json:"contentDetails"`
 	} `json:"items"`
 }
@@ -192,8 +226,13 @@ func fetchVideoMetaDataAPI(ctx context.Context, videoID, apiKey string) (string,
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
 		return "", 0, fmt.Errorf("data api decode: %w", err)
 	}
+
 	if len(out.Items) == 0 {
 		return "", 0, fmt.Errorf("data api: no items for id %q", videoID)
+	}
+
+	if out.AnyAgeRestricted() {
+		return "", 0, fmt.Errorf("data api: %w", ErrAgeRestircted)
 	}
 
 	title := strings.TrimSpace(out.Items[0].Snippet.Title)
@@ -244,7 +283,7 @@ func fetchVideoMetaMobileScrape(ctx context.Context, videoID string) (string, ti
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		b, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		return "", 0, fmt.Errorf("player %s: %s", resp.Status, strings.TrimSpace(string(b)))
+		return "", 0, fmt.Errorf("mobile scrape response %s: %s", resp.Status, strings.TrimSpace(string(b)))
 	}
 
 	body, readErr := io.ReadAll(resp.Body)
@@ -255,6 +294,10 @@ func fetchVideoMetaMobileScrape(ctx context.Context, videoID string) (string, ti
 	var pr playerResponse
 	if jsErr := json.Unmarshal(body, &pr); jsErr != nil {
 		return "", 0, jsErr
+	}
+
+	if pr.IsAgeRestricted() {
+		return "", 0, fmt.Errorf("mobile scrape: %w", ErrAgeRestircted)
 	}
 
 	title := strings.TrimSpace(pr.VideoDetails.Title)
@@ -426,4 +469,33 @@ func validateYTUrl(url string) (string, bool) {
 		return "", false
 	}
 	return vid, true
+}
+
+func (pr *playerResponse) IsAgeRestricted() bool {
+	// Direct flag (when present)
+	if pr.VideoDetails.AgeRestricted {
+		return true
+	}
+	// Microformat rating
+	if strings.EqualFold(pr.Microformat.PlayerMicroformatRenderer.YTRating, "ytAgeRestricted") {
+		return true
+	}
+	// Family-safe + a reason/status that implies age gating
+	ps := pr.PlayabilityStatus
+	if !pr.Microformat.PlayerMicroformatRenderer.IsFamilySafe &&
+		(ps.Status == "AGE_VERIFICATION_REQUIRED" ||
+			strings.Contains(strings.ToLower(ps.Reason), "age") ||
+			ps.DesktopLegacyAgeGateReason > 0) {
+		return true
+	}
+	return false
+}
+
+func (r *ytDataAPIResp) AnyAgeRestricted() bool {
+	for _, it := range r.Items {
+		if strings.EqualFold(it.ContentDetails.ContentRating.YTRating, "ytAgeRestricted") {
+			return true
+		}
+	}
+	return false
 }

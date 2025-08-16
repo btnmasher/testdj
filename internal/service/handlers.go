@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
 	"slices"
 	"strings"
 	"time"
@@ -537,8 +539,19 @@ func HandleAddVideo(lobby *dj.Lobby, user *dj.User, w http.ResponseWriter, r *ht
 	}
 
 	var opt FetchOption
-	title, dur, err := fetchVideoMeta(r.Context(), videoId, opt.Set(UseScrapeFetch, UseDataAPI))
+	useScrape, set := os.LookupEnv("USE_SCRAPE")
+	if !set || useScrape == "true" { // default true to scrape
+		opt = opt.Set(UseScrapeFetch)
+	}
+
+	title, dur, err := fetchVideoMeta(r.Context(), videoId, opt.Set(UseDataAPI))
 	if err != nil {
+		if errors.Is(err, ErrAgeRestircted) {
+			respondWithToast("Cannot add age restricted video", "error", w)
+			http.Error(w, "cannot add age restricted video", http.StatusForbidden)
+			return
+		}
+
 		if logger, exists := r.Context().Value(ContextLogger).(*slog.Logger); exists {
 			logger.Error("Error fetching video metadata for video", slog.String("videoId", videoId), tint.Err(err))
 		}
