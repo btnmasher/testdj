@@ -7,7 +7,7 @@ templ Index() {
             <h1 class="text-3xl font-bold mt-2 mb-4 text-center text-rainbow anim-dir-reverse text-rainbow-size-20 dark:text-gray-200">TEST DJ</h1>
 
             <form id="landingForm" method="POST" class="flex flex-col gap-4">
-                <div class="panel opacity-100 shadow-rainbow space-y-4 md:mx-auto md:min-w-lg">
+                <div class="panel opacity-90 shadow-rainbow space-y-4 md:mx-auto md:min-w-lg">
                     <h2 class="text-xl text-shadow-md font-semibold">Username</h2>
                     <input
                         type="text"
@@ -29,9 +29,9 @@ templ Index() {
                             <select
                                 name="mode"
                                 class="input mt-1 w-full"
-                                title="How the playlist will select the next video (Linear: First in first out - Shuffle: Random Order">
-                                <option value="linear">Linear</option>
+                                title="How the playlist will select the next video (Shuffle: Random Order - Linear: First in first out">
                                 <option value="shuffle">Shuffle</option>
+                                <option value="linear">Linear</option>
                             </select>
                         </label>
 
@@ -39,7 +39,7 @@ templ Index() {
                             Per-user Video Submission Limit:
                             <input type="number"
                                    name="limit"
-                                   value="5"
+                                   value="10"
                                    min="1"
                                    max="20"
                                    class="input mt-1 w-full"
