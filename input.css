@@ -886,13 +886,14 @@
         top: 0;
         transform: translate3d(0, 0, 0);
         will-change: transform;
-        pointer-events: auto; /* dinos catch the events */
+        pointer-events: none;
         z-index: 2;
     }
 
     /* Grab cursor only when grabbable */
     .dino.grabbable,
     .dino.grabbable * {
+        pointer-events: auto;
         cursor: grab !important;
     }
 

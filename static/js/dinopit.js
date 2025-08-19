@@ -873,38 +873,43 @@
          * @param {string} mode
          */
         setMode(mode) {
-            if (mode === MODE_DJ) {
-                this._mode = MODE_DJ;
-                this.layer = "dj";
-                this.el.classList.add("is-dj");
-                this.setZoomAndLabel(DJ_DINO_SCALE);
-                this.fixture.setFilterData({ categoryBits: CAT_DJ, maskBits: 0, groupIndex: 0 });
-                this.body.setGravityScale(0);
-                this.body.setLinearVelocity(pl.Vec2(0, 0));
-                this.body.setPosition(pl.Vec2(toM(obs.cx), toM(obs.bottom - this.r)));
-                this.body.setAwake(false);
-                this.setBob(0);
-                return;
+            switch (mode) {
+                case MODE_DJ:
+                    this._mode = MODE_DJ;
+                    this.layer = "dj";
+                    this.el.classList.add("is-dj");
+                    this.setZoomAndLabel(DJ_DINO_SCALE);
+                    this.fixture.setFilterData({categoryBits: CAT_DJ, maskBits: 0, groupIndex: 0});
+                    this.body.setGravityScale(0);
+                    this.body.setLinearVelocity(pl.Vec2(0, 0));
+                    this.body.setPosition(pl.Vec2(toM(obs.cx), toM(obs.bottom - this.r)));
+                    this.body.setAwake(false);
+                    this.setBob(0);
+                    break;
+                case MODE_SEEK_DJ:
+                    this._mode = MODE_SEEK_DJ;
+                    this.layer = "dj";
+                    this.el.classList.add("is-dj");
+                    this.setZoomAndLabel(DJ_DINO_SCALE);
+                    this.fixture.setFilterData({categoryBits: CAT_DJ, maskBits: CAT_WORLD, groupIndex: 0});
+                    this.body.setGravityScale(1);
+                    this.body.setAwake(true);
+                    break;
+                case MODE_NORMAL:
+                    this._mode = MODE_NORMAL;
+                    this.layer = "crowd";
+                    this.el.classList.remove("is-dj");
+                    this.setZoomAndLabel(1);
+                    this.fixture.setFilterData({
+                        categoryBits: CAT_CROWD,
+                        maskBits: CAT_WORLD | CAT_DESK | CAT_CROWD,
+                        groupIndex: +1
+                    });
+                    this.body.setGravityScale(1);
+                    this.body.setAwake(true);
+                    break;
             }
 
-            if (mode === MODE_SEEK_DJ) {
-                this._mode = MODE_SEEK_DJ;
-                this.layer = "dj";
-                this.el.classList.add("is-dj");
-                this.setZoomAndLabel(DJ_DINO_SCALE);
-                this.fixture.setFilterData({ categoryBits: CAT_DJ, maskBits: CAT_WORLD, groupIndex: 0 });
-                this.body.setGravityScale(1);
-                this.body.setAwake(true);
-                return;
-            }
-
-            this._mode = MODE_NORMAL;
-            this.layer = "crowd";
-            this.el.classList.remove("is-dj");
-            this.setZoomAndLabel(1);
-            this.fixture.setFilterData({ categoryBits: CAT_CROWD, maskBits: CAT_WORLD | CAT_DESK | CAT_CROWD, groupIndex: +1 });
-            this.body.setGravityScale(1);
-            this.body.setAwake(true);
             this.refreshInteractivity();
         }
 

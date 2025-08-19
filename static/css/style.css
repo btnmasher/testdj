@@ -1910,10 +1910,11 @@
     top: 0;
     transform: translate3d(0, 0, 0);
     will-change: transform;
-    pointer-events: auto;
+    pointer-events: none;
     z-index: 2;
   }
   .dino.grabbable, .dino.grabbable * {
+    pointer-events: auto;
     cursor: grab !important;
   }
   .dino.grabbable.grabbing, .dino.grabbable.grabbing * {
