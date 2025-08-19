@@ -274,7 +274,24 @@ func HandleSSE(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logger.Info("Connection started", user.Log())
-	<-ctx.Done()
+
+	ticker := time.NewTicker(60 * time.Second) // heartbeat
+	defer ticker.Stop()
+
+keepAlive:
+	for {
+		select {
+		case <-ctx.Done():
+			break keepAlive
+		case t := <-ticker.C:
+			fmt.Fprintf(w, ": ping %d\n\n", t.Unix())
+			err = rc.Flush()
+			if err != nil {
+				logger.Error("Flush error", tint.Err(err))
+			}
+		}
+	}
+
 	logger.Info("Connection closed", tint.Err(ctx.Err()))
 
 	client.Lock()
