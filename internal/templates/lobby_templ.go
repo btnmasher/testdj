@@ -61,7 +61,7 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"p-4 md:w-3/4 mx-auto lg:h-full flex flex-col\"><div id=\"sse-drain\" hx-trigger=\"sse:vote_mute_end, vote_skip_end, sse:lobby_expired, sse:toast, sse:redirect\"></div><div id=\"heartbeat-ticker\" hx-post=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"p-4 md:w-3/4 mx-auto lg:h-full flex flex-col\"><div id=\"sse-drain\" hx-trigger=\"sse:vote_mute_end, sse:vote_skip_end, sse:users_update, sse:video_update, sse:lobby_expired, sse:toast, sse:redirect\"></div><div id=\"heartbeat-ticker\" hx-post=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -188,20 +188,46 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" hx-trigger=\"submit\" hx-swap=\"none\" hx-disabled-elt=\"find input[type='text'], find button\" hx-on::after-on-Load=\"triggerSuccessAnim(this, event);\" class=\"pt-4 space-y-2 shrink-0 bg-gray-200 dark:bg-gray-700 dark:text-gray-100 z-10\"><div class=\"flex flex-wrap items-stretch gap-4\"><input type=\"text\" name=\"url\" placeholder=\"YouTube URL\" class=\"input text-sm placeholder:text-base grow\" required> <button id=\"add-video-button\" class=\"btn-primary anim-button disabled:cursor-not-allowed grow grid grid-cols-1 grid-rows-1 place-items-center inset-ring inset-ring-0 inset-ring-green-600\" type=\"submit\"><div class=\"anim-button-text col-start-1 row-start-1 text-center leading-none\">Add Video</div><div class=\"success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"size-7 text-green-600\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16.7 5.7l-7.7 8-3.7-3.7\"></path></svg></div></button></div></form></div></div></div></div></main><script src=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" hx-trigger=\"submit\" hx-swap=\"none\" hx-disabled-elt=\"find input[type='text'], find button\" hx-on::after-on-Load=\"triggerSuccessAnim(this, event);\" class=\"pt-4 space-y-2 shrink-0 bg-gray-200 dark:bg-gray-700 dark:text-gray-100 z-10\"><div class=\"flex flex-wrap items-stretch gap-4\"><input type=\"text\" name=\"url\" placeholder=\"YouTube URL\" class=\"input text-sm placeholder:text-base grow\" required> <button id=\"add-video-button\" class=\"btn-primary anim-button disabled:cursor-not-allowed grow grid grid-cols-1 grid-rows-1 place-items-center inset-ring inset-ring-0 inset-ring-green-600\" type=\"submit\"><div class=\"anim-button-text col-start-1 row-start-1 text-center leading-none\">Add Video</div><div class=\"success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"size-7 text-green-600\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16.7 5.7l-7.7 8-3.7-3.7\"></path></svg></div></button></div></form></div></div></div></div><div id=\"dino-pit\" aria-hidden=\"true\"><div id=\"dino-stage\" data-sheet=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/js/logout.js?nocache=%v", os.Getenv("githash")))
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/img/dino-sprites.png?nocache=%v", os.Getenv("githash")))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 125, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 125, Col: 119}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"></script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"></div><div id=\"dino-obstacle\"><img id=\"dj-sprite\" alt=\"\"></div></div></main><script src=\"https://cdn.jsdelivr.net/npm/planck@1.4.2/dist/planck.min.js\"></script> <script src=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/js/logout.js?nocache=%v", os.Getenv("githash")))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 130, Col: 83}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\"></script> <script src=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/js/dinopit.js?nocache=%v", os.Getenv("githash")))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 131, Col: 84}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\"></script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -210,6 +236,12 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 		templ_7745c5c3_Err = Base().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
+		}
+		for u := range lobby.Users.Values() {
+			templ_7745c5c3_Err = templ.JSFuncCall("spawnDino", u.ID, u.Name, u.Color, u.Variant).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		return nil
 	})

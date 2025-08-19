@@ -34,6 +34,9 @@ templ Base() {
         { children... }
     </body>
 
+    <script>
+    let DEBUG = {{ !prod }};
+    </script>
     <script src={fmt.Sprintf("/js/helpers.js?nocache=%v", os.Getenv("githash")) }></script>
     </html>
 }

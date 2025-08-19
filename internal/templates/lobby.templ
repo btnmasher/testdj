@@ -12,7 +12,7 @@ templ LobbyPage(lobby *dj.Lobby, user *dj.User) {
         <main hx-ext="sse" sse-connect={"/sse/" + lobby.ID } class="p-4 md:w-3/4 mx-auto lg:h-full flex flex-col">
             <div
                 id="sse-drain"
-                hx-trigger="sse:vote_mute_end, vote_skip_end, sse:lobby_expired, sse:toast, sse:redirect">
+                hx-trigger="sse:vote_mute_end, sse:vote_skip_end, sse:users_update, sse:video_update, sse:lobby_expired, sse:toast, sse:redirect">
             </div>
 
             <div
@@ -121,7 +121,16 @@ templ LobbyPage(lobby *dj.Lobby, user *dj.User) {
                     </div>
                 </div>
             </div>
+            <div id="dino-pit" aria-hidden="true">
+                <div id="dino-stage" data-sheet={ fmt.Sprintf("/img/dino-sprites.png?nocache=%v", os.Getenv("githash")) }></div>
+                <div id="dino-obstacle"><img id="dj-sprite" alt=""></div>
+            </div>
         </main>
+        <script src="https://cdn.jsdelivr.net/npm/planck@1.4.2/dist/planck.min.js"></script>
         <script src={ fmt.Sprintf("/js/logout.js?nocache=%v", os.Getenv("githash")) }></script>
+        <script src={ fmt.Sprintf("/js/dinopit.js?nocache=%v", os.Getenv("githash")) }></script>
+    }
+    for u := range lobby.Users.Values() {
+        @templ.JSFuncCall("spawnDino", u.ID, u.Name, u.Color, u.Variant)
     }
 }

@@ -2,6 +2,7 @@ package dj
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -15,6 +16,26 @@ import (
 	"github.com/btnmasher/testdj/internal/shared"
 	"github.com/btnmasher/testdj/internal/sse"
 )
+
+const (
+	UpdateVideo        = "video_update"
+	UpdateUsers        = "users_update"
+	UpdatePlaylist     = "playlist_update"
+	UpdateLobbyExpired = "lobby_expired"
+)
+
+func formatVideoUpdate(submitterId string) string {
+	if submitterId == "" {
+		return `{"video":{}}`
+	}
+	return fmt.Sprintf(`{"video":{"submitter":"%s"}}`, submitterId)
+}
+
+func formatUsersUpdate(users []*User) string {
+	payload := map[string][]*User{"users": users}
+	data, _ := json.Marshal(payload)
+	return string(data)
+}
 
 type Lobby struct {
 	sync.Mutex
@@ -49,15 +70,17 @@ type Lobby struct {
 }
 
 type User struct {
-	ID            string
-	Name          string
-	IP            string
-	LobbyID       string
-	SessionID     string
-	MutedUntil    time.Time
-	LastActivity  time.Time
-	PendingLogout time.Time
-	SSE           *sse.Client
+	ID            string      `json:"id"`
+	Name          string      `json:"name"`
+	Color         int         `json:"color"`
+	Variant       int         `json:"variant"`
+	IP            string      `json:"-"`
+	LobbyID       string      `json:"-"`
+	SessionID     string      `json:"-"`
+	MutedUntil    time.Time   `json:"-"`
+	LastActivity  time.Time   `json:"-"`
+	PendingLogout time.Time   `json:"-"`
+	SSE           *sse.Client `json:"-"`
 }
 
 type Video struct {
@@ -85,6 +108,8 @@ func (m *LobbyManager) NewUser(name, ip string) *User {
 		Name:         name,
 		IP:           ip,
 		LastActivity: time.Now(),
+		Color:        rand.Intn(12),
+		Variant:      rand.Intn(10),
 	}
 	m.UsersByIP.Set(user.IP, user)
 	m.UsersBySessionID.Set(user.SessionID, user)
@@ -150,7 +175,7 @@ func (l *Lobby) Touch() {
 
 func (l *Lobby) Expire() {
 	l.log.Info("Lobby Expired")
-	l.Broadcast("lobby_expired", "")
+	l.Broadcast(UpdateLobbyExpired, "")
 	for user := range l.Users.Values() {
 		if user.SSE != nil {
 			user.SSE.Cancel(LobbyExpired)
@@ -193,7 +218,7 @@ func (l *Lobby) AddUser(user *User) {
 	l.log.With("func", "AddUser").
 		Debug("Added User", user.Log())
 
-	l.Broadcast("users_update", "")
+	l.Broadcast(UpdateUsers, formatUsersUpdate(l.Users.ValuesSlice()))
 }
 
 func (l *Lobby) RemoveUser(user *User) {
@@ -206,7 +231,7 @@ func (l *Lobby) RemoveUser(user *User) {
 			user.SSE.Cancel(UserTimeout)
 		}
 
-		l.Broadcast("users_update", "")
+		l.Broadcast(UpdateUsers, formatUsersUpdate(l.Users.ValuesSlice()))
 	}
 }
 
@@ -235,7 +260,7 @@ func (l *Lobby) AddVideo(video *Video) {
 		l.PickNextVideo()
 	} else {
 		log.Debug("Video added")
-		l.Broadcast("playlist_update", "")
+		l.Broadcast(UpdatePlaylist, "")
 	}
 
 	l.Touch()
@@ -319,7 +344,7 @@ func (l *Lobby) CleanupMuteExpirations() {
 	}
 
 	if len(cdsToDelete) > 0 || len(mutesToDelete) > 0 {
-		l.Broadcast("users_update", "")
+		l.Broadcast(UpdateUsers, "")
 	}
 }
 
@@ -364,7 +389,7 @@ func (l *Lobby) PickNextVideo() {
 	if len(l.Videos) == 0 {
 		l.CurrentVideo = nil
 		log.Debug("No video to select, queue is empty")
-		l.Broadcast("video_update", "")
+		l.Broadcast(UpdateVideo, formatVideoUpdate(""))
 		return
 	}
 
@@ -385,7 +410,7 @@ func (l *Lobby) PickNextVideo() {
 
 	log.Debug("Next video selected", next.Log())
 
-	l.Broadcast("video_update", "")
+	l.Broadcast(UpdateVideo, formatVideoUpdate(next.SubmitterID))
 
 	l.nextTimer.Reset(l.CurrentVideo.Duration)
 }

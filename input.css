@@ -55,7 +55,11 @@
 }
 
 @utility text-rainbow-size-* {
-    --tw-text-rainbow-size: calc(--value(integer) * 1%)
+    --tw-text-rainbow-size: calc(--value(integer)% * 0.999999 + 0.000001%)
+}
+
+@utility bg-rainbow-size-* {
+    --tw-bg-rainbow-size: calc(--value(integer)% * 0.999999 + 0.000001%)
 }
 
 @utility anim-dir-* {
@@ -307,8 +311,8 @@
     }
 
     @keyframes rainbow-bg-slide {
-        0%   { background-position: 100% 50% }
-        100% { background-position: 0    50% }
+        from  { background-position-x: 100% }
+        to { background-position: -100% }
     }
 
     @keyframes rotate {
@@ -380,14 +384,14 @@
     .bg-rainbow {
         background-image: repeating-linear-gradient(var(--rainbow-angle), var(--tw-rainbow-steps));
         background-repeat: repeat;
-        background-size: var(--tw-text-rainbow-size, 50%) 200%;
+        background-size: var(--tw-bg-rainbow-size, 50%) 100%;
         animation: rainbow-bg-slide var(--tw-rainbow-speed, 8s) linear infinite;
     }
 
     .text-rainbow {
         background-image: repeating-linear-gradient(var(--rainbow-angle), var(--tw-rainbow-steps));
         background-repeat: repeat;
-        background-size: var(--tw-text-rainbow-size, 50%) 200%;
+        background-size: var(--tw-text-rainbow-size, 50%) 100%;
         animation: rainbow-bg-slide var(--tw-rainbow-speed, 8s) linear infinite;
         -webkit-background-clip: text; background-clip: text;
         color: transparent; -webkit-text-fill-color: transparent;
@@ -792,5 +796,173 @@
 
     .sub-panel {
         @apply py-2 px-4 rounded bg-gray-300 dark:bg-gray-600 dark:text-gray-100 shadow-lg/10 font-bold;
+    }
+
+    /* ---------- Fixed pit at bottom ---------- */
+    #dino-pit {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 100vh;
+        z-index: 2147483000;
+        overflow: hidden;
+        contain: layout paint style;
+        pointer-events: none; /* click-through container */
+    }
+
+    /* Stage is click-through; only dinos get pointer events */
+    #dino-stage {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        overflow: hidden;
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: none;
+        cursor: default;
+    }
+
+    #dino-stage::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0;
+        height: 2px;
+        background: transparent;
+    }
+
+    /* ---------- DJ desk physics box (visual overlays via sprite) ---------- */
+    #dino-obstacle {
+        all: unset;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 0;
+
+        /* visual size is updated in JS to the scaled width/height */
+        width: 64px;
+        height: 16px;
+
+        background: rgb(26 31 39);
+        border: none;
+        border-radius: 6px;
+        box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.05),
+                0 6px 12px rgba(0,0,0,.25);
+
+        z-index: 3;
+        pointer-events: none;
+        overflow: visible;
+    }
+
+    #dino-obstacle.has-sprite {
+        all: unset;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    /* DJ booth sprite overlay */
+    #dj-sprite {
+        all: unset;
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        transform: translate(-50%, var(--dj-shift, 0px));
+        width: var(--dj-width, 64px);
+        height: auto;
+        image-rendering: pixelated;
+        display: none;
+        pointer-events: none;
+        z-index: 4;
+    }
+
+    /* ---------- Dinos ---------- */
+    .dino {
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform: translate3d(0, 0, 0);
+        will-change: transform;
+        pointer-events: auto; /* dinos catch the events */
+        z-index: 2;
+    }
+
+    /* Grab cursor only when grabbable */
+    .dino.grabbable,
+    .dino.grabbable * {
+        cursor: grab !important;
+    }
+
+    .dino.grabbable.grabbing,
+    .dino.grabbable.grabbing * {
+        cursor: grabbing !important;
+    }
+
+    .sprite-zoom {
+        /* Dino growth/shrink when selected */
+        transform-origin: 50% 100%;
+        transform: scale(var(--zoom, 1));
+        transition: transform 0ms;
+    }
+
+    .dino.is-dj .sprite-zoom {
+        /* Dino: slow 1.5s scale transition */
+        transition-duration: 1500ms;
+        transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .sprite-bob {
+        /* bobbing lives here (no transition so it doesn’t get “smoothed”) */
+        transform-origin: 50% 100%;
+        transform: translateY(var(--bob, 0px));
+        transition: none;
+    }
+
+    .sprite-flip {
+        /* fast “turn” when flipping facing */
+        transform: scaleX(var(--face, 1));
+        transition: transform 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+
+    .sprite {
+        width: calc(64px * var(--dino-scale, 1));
+        height: calc(64px * var(--dino-scale, 1));
+        image-rendering: pixelated;
+        display: block;
+        pointer-events: none;
+        opacity: var(--dino-opacity, 1);
+
+        /* tinting stays here */
+        filter:
+                hue-rotate(var(--dino-hue, 0deg))
+                saturate(var(--dino-sat, 1))
+                brightness(var(--dino-bright, 1));
+    }
+
+    .dino-label {
+        position: absolute !important;
+        left: 50%;
+        bottom: calc(100% + var(--dino-label-margin, 8px) + var(--dino-label-lift, 0px));
+        transform: translateX(-50%);
+        border-radius: 6px;
+        padding: 2px 6px;
+        background: rgba(0,0,0,.6);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .dino-label-text {
+        white-space: nowrap;
+
+        color: #fff;
+
+        font-family: sans-serif;
+        font-size: calc(var(--dino-label-base, 16px) * var(--dino-label-scale, 1));
+        font-weight: 700;
+        line-height: 1;
     }
 }

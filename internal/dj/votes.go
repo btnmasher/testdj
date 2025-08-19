@@ -41,7 +41,7 @@ func (l *Lobby) StartVoteSkip(user *User) bool {
 	l.VoteSkip.YesVotes.Set(user.ID, true)
 	l.VoteSkip.StartedAt = time.Now()
 
-	l.Broadcast("vote_skip_update", "")
+	l.Broadcast(UpdateVoteSkip, "")
 	l.voteSkipTimer.Reset(30 * time.Second)
 	return true
 }
@@ -82,7 +82,7 @@ func (l *Lobby) StartVoteMute(user *User, targetID string) bool {
 
 	log.Debug("Starting vote mute timer")
 
-	l.Broadcast("vote_mute_update", "")
+	l.Broadcast(UpdateVoteMute, "")
 	l.voteMuteTimer.Reset(30 * time.Second)
 
 	return true
@@ -150,17 +150,17 @@ func (l *Lobby) RecordSkipVote(user *User, vote string) bool {
 
 func (l *Lobby) BroadcastVoteSkipStatus() {
 	if l.VoteSkip.Active {
-		l.Broadcast("vote_skip_update", "")
+		l.Broadcast(UpdateVoteSkip, "")
 	} else {
-		l.Broadcast("vote_skip_end", "")
+		l.Broadcast(UpdateVoteSkipEnd, "")
 	}
 }
 
 func (l *Lobby) BroadcastVoteMuteStatus() {
 	if l.VoteMute.Active {
-		l.Broadcast("vote_mute_update", "")
+		l.Broadcast(UpdateVoteMute, "")
 	} else {
-		l.Broadcast("vote_mute_end", "")
+		l.Broadcast(UpdateVoteMuteEnd, "")
 	}
 }
 
@@ -199,9 +199,9 @@ func (l *Lobby) EndVoteSkip(succeeded bool) {
 	l.VoteSkip.YesVotes.Clear()
 
 	if succeeded {
-		l.Broadcast("vote_skip_end", `{"message":"Vote to skip passed!", "type":"success"}`)
+		l.Broadcast(UpdateVoteSkipEnd, formatToast("Vote to skip passed!", ToastSuccess))
 	} else {
-		l.Broadcast("vote_skip_end", `{"message":"Vote to skip failed.", "type":"error"}`)
+		l.Broadcast(UpdateVoteSkipEnd, formatToast("Vote to skip failed.", ToastError))
 	}
 }
 
@@ -246,8 +246,24 @@ func (l *Lobby) EndVoteMute(succeeded bool) {
 	l.VoteMute.YesVotes.Clear()
 
 	if succeeded {
-		l.Broadcast("vote_mute_end", fmt.Sprintf(`{"message":"Vote to mute %s passed!", "type":"success"}`, name))
+		l.Broadcast(UpdateVoteMuteEnd, formatToast(fmt.Sprintf("Vote to mute %s passed!", name), ToastSuccess))
 	} else {
-		l.Broadcast("vote_mute_end", fmt.Sprintf(`{"message":"Vote to mute %s failed.", "type":"error"}`, name))
+		l.Broadcast(UpdateVoteMuteEnd, formatToast(fmt.Sprintf("Vote to mute %s failed.", name), ToastError))
 	}
+}
+
+const (
+	UpdateVoteSkip    = "vote_skip_update"
+	UpdateVoteSkipEnd = "vote_skip_end"
+	UpdateVoteMute    = "vote_mute_update"
+	UpdateVoteMuteEnd = "vote_mute_end"
+)
+
+const (
+	ToastSuccess = "success"
+	ToastError   = "error"
+)
+
+func formatToast(message, kind string) string {
+	return fmt.Sprintf(`{"toast":{"message":"%s", "type":"%s"}}`, message, kind)
 }
