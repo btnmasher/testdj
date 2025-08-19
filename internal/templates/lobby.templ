@@ -133,4 +133,7 @@ templ LobbyPage(lobby *dj.Lobby, user *dj.User) {
     for u := range lobby.Users.Values() {
         @templ.JSFuncCall("spawnDino", u.ID, u.Name, u.Color, u.Variant)
     }
+    if lobby.CurrentVideo != nil {
+        @templ.JSFuncCall("setDJ", lobby.CurrentVideo.SubmitterID)
+    }
 }

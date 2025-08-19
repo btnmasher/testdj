@@ -359,6 +359,10 @@ function spawnDino(id, name, color, variant) {
     setTimeout(() => window.DinoPit?.spawn(args), 1000);
 }
 
+function setDJ(id) {
+    setTimeout(() => {window.DinoPit?.makeDJ(id)}, 1000);
+}
+
 function removeDino(id) {
     setTimeout(() => window.DinoPit?.remove(id), 1000);
 }

@@ -243,6 +243,12 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
+		if lobby.CurrentVideo != nil {
+			templ_7745c5c3_Err = templ.JSFuncCall("setDJ", lobby.CurrentVideo.SubmitterID).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
 		return nil
 	})
 }
