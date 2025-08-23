@@ -723,6 +723,14 @@ func HandleVoteSkipStart(lobby *dj.Lobby, user *dj.User, w http.ResponseWriter, 
 		http.Error(w, "no current video playing", http.StatusBadRequest)
 		return
 	}
+
+	if lobby.CurrentVideo.WasVoted {
+		lobby.Unlock()
+		respondWithToast("This video already survived a vote skip", "error", w)
+		http.Error(w, "video already survived vote skip", http.StatusBadRequest)
+		return
+	}
+
 	lobby.Unlock()
 
 	if lobby.Users.Length() < 2 {

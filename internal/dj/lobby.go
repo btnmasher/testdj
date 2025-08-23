@@ -89,6 +89,7 @@ type Video struct {
 	Title         string
 	SubmitterID   string
 	SubmitterName string
+	WasVoted      bool
 	Duration      time.Duration
 }
 

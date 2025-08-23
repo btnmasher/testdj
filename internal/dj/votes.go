@@ -186,10 +186,14 @@ func (l *Lobby) CalcVoteSkipResult() bool {
 func (l *Lobby) EndVoteSkip(succeeded bool) {
 	l.voteSkipTimer.Stop()
 
-	if l.CurrentVideo != nil && succeeded {
-		videoID := l.CurrentVideo.ID
-		l.PlayedVideos.Set(videoID, time.Now().Add(time.Hour))
-		l.PickNextVideo()
+	if l.CurrentVideo != nil {
+		if succeeded {
+			videoID := l.CurrentVideo.ID
+			l.PlayedVideos.Set(videoID, time.Now().Add(time.Hour))
+			l.PickNextVideo()
+		} else {
+			l.CurrentVideo.WasVoted = true
+		}
 	}
 
 	l.VoteSkip.Active = false
