@@ -1455,7 +1455,7 @@
             }
             const d = DinoPit.dinosById.get(String(id));
             if (!d) {
-                throw new Error('No dino "' + id + '"');
+                return DinoPit.releaseDJ();
             }
             if (DinoPit.currentDJ && DinoPit.currentDJ !== d.id) {
                 DinoPit.releaseDJ();
