@@ -38,73 +38,6 @@ if(!DEBUG){
  */
 
 /* ============================================================================
- * Time & Countdown Utilities
- * ==========================================================================*/
-
-/**
- * Convert a number of seconds into a compact human-readable string.
- * Examples: `65 -> "1m5s"`, `3661 -> "1h1m1s"`, `45 -> "45s"`.
- *
- * @param {number} totalSec - Total seconds (will be clamped to a non-negative integer).
- * @returns {string} Humanized time string.
- */
-function humanizeSeconds(totalSec) {
-    // ensure a non-negative integer
-    const secs = Math.max(0, Math.floor(totalSec));
-
-    const hours   = Math.floor(secs / 3600);
-    const rem     = secs % 3600;
-    const minutes = Math.floor(rem / 60);
-    const seconds = rem % 60;
-
-    let out = "";
-    if (hours > 0) {
-        out += hours + "h";
-    }
-    // show minutes if non-zero, or if we have hours and some seconds
-    if (minutes > 0 || (hours > 0 && seconds > 0)) {
-        out += minutes + "m";
-    }
-    // always show seconds
-    out += seconds + "s";
-
-    return out;
-}
-
-/**
- * Initialize or restart a countdown on the element with the given id.
- * The target element must have a `data-ends` (seconds since epoch) attribute.
- * The element's text content is updated once per second with a compact string.
- *
- * @param {string} id - Element id that will display the countdown.
- * @returns {void}
- */
-function initCountdown(id) {
-    /** @type {TimerElement|null} */
-    const el = /** @type {any} */ (document.getElementById(id));
-    if (!el) {
-        return;
-    }
-
-    // clear any existing timer
-    if (el._timer) {
-        clearInterval(el._timer);
-    }
-
-    function update() {
-        const ends = parseInt(el.dataset.ends, 10) * 1000;
-        const now  = Date.now();
-        const diff = Math.max(0, Math.ceil((ends - now)/1000));
-        el.textContent = humanizeSeconds(diff);
-        if (diff <= 0) clearInterval(el._timer);
-    }
-
-    // run immediately, then every second
-    update();
-    el._timer = setInterval(update, 1000);
-}
-
-/* ============================================================================
  * Toasts & Notifications
  * ==========================================================================*/
 
@@ -164,19 +97,60 @@ function copyInviteURL(e, code) {
         });
 }
 
+/**
+ * Copy a video URL for a given id to the clipboard, show a toast,
+ * and optionally trigger a confirmation animation on the invoking button.
+ *
+ * @param {Event} [e] - Optional click event from the triggering button.
+ * @param {string} id - Invite code to embed in the URL path.
+ * @returns {void}
+ */
+function copyVideoURL(e, id) {
+    /** @type {HTMLElement|undefined} */
+    const btn = /** @type {any} */ (e?.currentTarget);
+    const url = `https://youtu.be/${id}`;
+
+    navigator.clipboard.writeText(url.toString())
+        .then(() => {
+            showToast("Video URL copied to clipboard","success");
+            if (btn) {
+                triggerCheckmarkAnim(btn);
+            }
+        })
+        .catch(err => {
+            showToast("Video URL failed to copy","error");
+            console.error("Clipboard copy failed:", err);
+        });
+}
+
 /* ============================================================================
  * Micro Animations
  * ==========================================================================*/
+
+// Track per-element listeners/timers; auto-GC when elements go away
+const animCtx = new WeakMap();
 
 /**
  * Retrigger a CSS keyframe animation by toggling the class `animate-check`.
  *
  * @param {HTMLElement|null|undefined} btn - The element to animate.
+ * @param {{hardCapMs?: number, idleNoStartMs?: number}} [opts]
  * @returns {void}
  */
-function triggerCheckmarkAnim(btn) {
+function triggerCheckmarkAnim(btn, opts = {}) {
     if (!btn) {
         return;
+    }
+
+    const hardCapMs = opts.hardCapMs ?? 4000; // safety: never get stuck
+    const idleNoStartMs = opts.idleNoStartMs ?? 50;
+
+    // Cancel previous cycle for this element
+    const prev = animCtx.get(btn);
+    if (prev) {
+        prev.abort.abort();
+        clearTimeout(prev.hardCap);
+        clearTimeout(prev.noStart);
     }
 
     btn.classList.remove('animate-check');
@@ -185,6 +159,54 @@ function triggerCheckmarkAnim(btn) {
     btn.offsetWidth;
     // re-trigger the CSS animation reliably
     btn.classList.add('animate-check');
+
+    // New context
+    const abort = new AbortController();
+    const ctx = { abort, hardCap: 0, noStart: 0 };
+    animCtx.set(btn, ctx);
+
+    let pending = 0;
+    let sawStart = false;
+
+    const remove = () => {
+        btn.classList.remove('animate-check');
+        abort.abort();
+        clearTimeout(ctx.hardCap);
+        clearTimeout(ctx.noStart);
+        animCtx.delete(btn);
+    };
+
+    const isOurs = (t) => t === btn || btn.contains(t);
+
+    // Count starts/ends; ignore infinite animations (they never "end")
+    const consider = (e, isStart) => {
+        if (!isOurs(e.target)) return;
+
+        const iters = getComputedStyle(e.target).animationIterationCount || "";
+        const infinite = iters.split(",").some(v => v.trim() === "infinite");
+        if (infinite) return;
+
+        if (isStart) {
+            sawStart = true;
+            pending++;
+        } else {
+            if (pending > 0) pending--;
+            if (sawStart && pending === 0) {
+                // Allow same-frame starts to queue, then remove
+                queueMicrotask(remove);
+            }
+        }
+    };
+
+    btn.addEventListener("animationstart", (e) => consider(e, true),  { signal: abort.signal, capture: true });
+    btn.addEventListener("animationend",   (e) => consider(e, false), { signal: abort.signal, capture: true });
+    btn.addEventListener("animationcancel",(e) => consider(e, false), { signal: abort.signal, capture: true });
+
+    // If nothing actually starts, clear quickly so it can be retriggered
+    ctx.noStart = setTimeout(() => { if (!sawStart) remove(); }, idleNoStartMs);
+
+    // Hard cap safety (handles buggy CSS or canceled events)
+    ctx.hardCap = setTimeout(remove, hardCapMs);
 }
 
 /**
@@ -349,6 +371,163 @@ document.getElementById('landingForm')?.addEventListener('keydown', /** @this {H
         this.requestSubmit ? this.requestSubmit(createBtn) : createBtn?.click();
     }
 });
+
+
+/* ============================================================================
+ * Timestamp Rendering
+ * ===========================================================================*/
+
+(function() {
+    const SELECTOR = 'time[data-rel]';
+    const ctxByEl = new WeakMap(); // el -> { ts, nextDue, countdown, suffix }
+    const visible = new Set();
+    let timer = 0;
+
+    const io = 'IntersectionObserver' in window
+        ? new IntersectionObserver(entries => {
+            for (const e of entries) {
+                if (e.isIntersecting) { visible.add(e.target); scheduleFor(e.target); }
+                else visible.delete(e.target);
+            }
+            reschedule();
+        }, { threshold: 0 })
+        : null;
+
+    function parse(el) {
+        let ctx = ctxByEl.get(el);
+        if (ctx) return ctx;
+        const iso = el.getAttribute('datetime') || el.dateTime || el.textContent.trim();
+        const ts = Date.parse(iso);
+        const countdown = el.hasAttribute('data-countdown');
+        const rawSuffix = (el.getAttribute('data-suffix') || 'long').toLowerCase();
+        const suffix = rawSuffix === 'none' ? 'none' : 'long';
+        ctx = { ts, nextDue: 0, countdown, suffix };
+        ctxByEl.set(el, ctx);
+        if (io) io.observe(el);
+        return ctx;
+    }
+
+    function plural(n, unit) { return n === 1 ? `${n} ${unit}` : `${n} ${unit}s`; }
+
+    function withSuffix(text, future, mode) {
+        return mode === 'none' ? text : `${text} ${future ? 'from now' : 'ago'}`;
+    }
+
+    function formatRelative(ts, now, countdown, suffix) {
+        const ms = ts - now;
+        const future = ms > 0;
+        const absS = Math.floor(Math.abs(ms) / 1000);
+
+        if (future && countdown) {
+            const total = Math.max(0, Math.ceil(ms / 1000));
+            const m = Math.floor(total / 60);
+            const s = total % 60;
+            const body = m ? `${m}m${String(s).padStart(2, '0')}s` : `${s}s`;
+            return withSuffix(body, true, suffix);
+        }
+
+        if (absS < 60) {
+            return withSuffix('less than a minute', future, suffix);
+        }
+
+        const mins = Math.floor(absS / 60);
+        return withSuffix(plural(mins, 'minute'), future, suffix);
+    }
+
+    function computeNextDue(ts, now, countdown) {
+        const future = ts > now;
+        const abs = Math.abs(ts - now);
+
+        if (future && countdown) {
+            const nextSecond = now - (now % 1000) + 1000 + 5;
+            return Math.min(nextSecond, ts);
+        }
+        if (abs < 60_000) {
+            return future ? ts : ts + 60_000;
+        }
+        if (future) {
+            const rem = (ts - now) % 60_000;
+            return now + (rem === 0 ? 60_000 : rem);
+        }
+        const remPast = (now - ts) % 60_000;
+        return now + (60_000 - remPast);
+    }
+
+    function renderAndSchedule(el, now) {
+        const { ts, countdown, suffix } = parse(el);
+        if (Number.isNaN(ts)) return Infinity;
+
+        const newText = formatRelative(ts, now, countdown, suffix);
+        if (el.textContent !== newText) el.textContent = newText;
+
+        if (!el.title) {
+            try {
+                el.title = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'long' })
+                    .format(new Date(ts));
+            } catch {}
+        }
+
+        const due = computeNextDue(ts, now, countdown);
+        ctxByEl.get(el).nextDue = due;
+        return due;
+    }
+
+    function scheduleFor(el) { return renderAndSchedule(el, Date.now()); }
+
+    function reschedule() {
+        clearTimeout(timer);
+        const now = Date.now();
+        let earliest = Infinity;
+        const pool = io ? visible : new Set(document.querySelectorAll(SELECTOR));
+        for (const el of pool) {
+            const ctx = ctxByEl.get(el) || parse(el);
+            if (!ctx) continue;
+            if (!ctx.nextDue) ctx.nextDue = computeNextDue(ctx.ts, now, ctx.countdown);
+            if (ctx.nextDue < earliest) earliest = ctx.nextDue;
+        }
+        if (earliest !== Infinity) {
+            timer = setTimeout(tick, Math.max(0, earliest - Date.now()));
+        }
+    }
+
+    function tick() {
+        const now = Date.now();
+        const pool = io ? [...visible] : [...document.querySelectorAll(SELECTOR)];
+        let earliest = Infinity;
+        for (const el of pool) {
+            const ctx = ctxByEl.get(el);
+            if (!ctx) continue;
+            if (ctx.nextDue - 2 <= now) {
+                const due = renderAndSchedule(el, now);
+                if (due < earliest) earliest = due;
+            } else if (ctx.nextDue < earliest) {
+                earliest = ctx.nextDue;
+            }
+        }
+        if (earliest !== Infinity) {
+            timer = setTimeout(tick, Math.max(0, earliest - Date.now()));
+        }
+    }
+
+    function init() {
+        const nodes = document.querySelectorAll(SELECTOR);
+        const now = Date.now();
+        for (const el of nodes) {
+            const ctx = parse(el);
+            el.textContent = formatRelative(ctx.ts, now, ctx.countdown, ctx.suffix);
+            if (io) visible.add(el);
+        }
+        reschedule();
+    }
+
+    const mo = new MutationObserver(() => {
+        for (const el of document.querySelectorAll(SELECTOR)) parse(el);
+        reschedule();
+    });
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+
+    document.addEventListener('DOMContentLoaded', init);
+})();
 
 /* ============================================================================
  * DinoPit helpers

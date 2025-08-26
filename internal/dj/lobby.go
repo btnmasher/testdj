@@ -24,6 +24,18 @@ const (
 	UpdateLobbyExpired = "lobby_expired"
 )
 
+const (
+	LobbyModeShuffle    = "shuffle"
+	LobbyModeRoundRobin = "round_robin"
+	LobbyModeLinear     = "linear"
+)
+
+var modeDisplayName = map[string]string{
+	LobbyModeShuffle:    "Shuffle",
+	LobbyModeRoundRobin: "Round Robin",
+	LobbyModeLinear:     "Linear",
+}
+
 func formatVideoUpdate(submitterId string) string {
 	if submitterId == "" {
 		return `{"video":{}}`
@@ -52,8 +64,9 @@ type Lobby struct {
 	MutesByIP         safemap.SafeMap[string, time.Time]
 	MuteCooldownsByIP safemap.SafeMap[string, time.Time]
 	Videos            []*Video
+	RoundRobinQueue   []string
 	CurrentVideo      *Video
-	PlayedVideos      safemap.SafeMap[string, time.Time]
+	PlayedVideos      safemap.SafeMap[string, *Video]
 	VoteSkip          VoteSkipStatus
 	VoteMute          VoteMuteStatus
 
@@ -90,7 +103,9 @@ type Video struct {
 	SubmitterID   string
 	SubmitterName string
 	WasVoted      bool
+	WasSkipped    bool
 	Duration      time.Duration
+	LastPlayed    time.Time
 }
 
 var LobbyExpired = errors.New("lobby expired")
@@ -131,7 +146,7 @@ func (m *LobbyManager) NewLobby(mode string, maxQueue int, creatorIP string) *Lo
 		UsersBySession:    safemap.NewMutexMap[string, *User](),
 		MutesByIP:         safemap.NewMutexMap[string, time.Time](),
 		Videos:            []*Video{},
-		PlayedVideos:      safemap.NewMutexMap[string, time.Time](),
+		PlayedVideos:      safemap.NewMutexMap[string, *Video](),
 		MuteCooldownsByIP: safemap.NewMutexMap[string, time.Time](),
 		VoteSkip: VoteSkipStatus{
 			YesVotes: safemap.NewMutexMap[string, bool](),
@@ -212,6 +227,10 @@ func (l *Lobby) AddUser(user *User) {
 	l.Users.Set(user.ID, user)
 	l.UsersBySession.Set(user.SessionID, user)
 
+	l.Lock()
+	l.RoundRobinQueue = append(l.RoundRobinQueue, user.ID)
+	l.Unlock()
+
 	if mute, exists := l.MutesByIP.Get(user.IP); exists {
 		user.MutedUntil = mute
 	}
@@ -223,6 +242,12 @@ func (l *Lobby) AddUser(user *User) {
 }
 
 func (l *Lobby) RemoveUser(user *User) {
+	for i, uid := range l.RoundRobinQueue {
+		if uid == user.ID {
+			l.RoundRobinQueue = append(l.RoundRobinQueue[:i], l.RoundRobinQueue[i+1:]...)
+			break
+		}
+	}
 	if l.Users.Delete(user.ID) {
 		l.log.With("func", "RemoveUser").
 			Debug("Removing User", user.Log())
@@ -353,19 +378,19 @@ func (l *Lobby) CleanupPlayedVideos() {
 	log := l.log.With("func", "CleanupPlayedVideos")
 
 	now := time.Now()
-	vidsToDelete := make([]string, 0)
-	for vid, exp := range l.PlayedVideos.All() {
-		if now.After(exp) {
-			vidsToDelete = append(vidsToDelete, vid)
+	idsToDelete := make([]string, 0)
+	for id, video := range l.PlayedVideos.All() {
+		if now.Sub(video.LastPlayed).Hours() >= 1 {
+			idsToDelete = append(idsToDelete, id)
 		}
 	}
 
-	if len(vidsToDelete) > 0 {
-		log.Debug("Deleting videos from play cooldown list", slog.Any("IDs", vidsToDelete))
+	if len(idsToDelete) > 0 {
+		log.Debug("Deleting videos from play cooldown list", slog.Any("IDs", idsToDelete))
 	}
 
-	for _, vid := range vidsToDelete {
-		l.PlayedVideos.Delete(vid)
+	for _, id := range idsToDelete {
+		l.PlayedVideos.Delete(id)
 	}
 }
 
@@ -384,7 +409,13 @@ func (l *Lobby) PickNextVideo() {
 		l.VoteSkip.NoVotes.Clear()
 		l.VoteSkip.YesVotes.Clear()
 		l.VoteSkip.VideoID = ""
-		l.VoteSkip.StartedAt = time.Time{}
+		l.VoteSkip.EndsAt = time.Time{}
+	}
+
+	last := l.CurrentVideo
+	if last != nil {
+		last.LastPlayed = time.Now()
+		l.PlayedVideos.Set(last.ID, last)
 	}
 
 	if len(l.Videos) == 0 {
@@ -395,15 +426,26 @@ func (l *Lobby) PickNextVideo() {
 	}
 
 	var idx int
-	if l.Mode == "shuffle" {
+	switch l.Mode {
+	case LobbyModeShuffle:
 		idx = rand.Intn(len(l.Videos))
+	case LobbyModeRoundRobin:
+		for range l.RoundRobinQueue {
+			idx = l.getVideoFromUser(l.getNextRobin())
+			if idx > -1 {
+				break
+			}
+		}
+		if idx == -1 {
+			// no user in the round robin queue had a submitted video, pick a random one
+			idx = rand.Intn(len(l.Videos))
+		}
 	}
 
 	next := l.Videos[idx]
 
-	// Remove from playlist and set played
+	// Remove from playlist
 	l.Videos = append(l.Videos[:idx], l.Videos[idx+1:]...)
-	l.PlayedVideos.Set(next.ID, time.Now().Add(time.Hour))
 
 	// Set current and signal change
 	l.CurrentVideo = next
@@ -413,5 +455,35 @@ func (l *Lobby) PickNextVideo() {
 
 	l.Broadcast(UpdateVideo, formatVideoUpdate(next.SubmitterID))
 
-	l.nextTimer.Reset(l.CurrentVideo.Duration)
+	l.nextTimer.Reset(l.CurrentVideo.Duration + (time.Second * 2))
+}
+
+func (l *Lobby) GetLobbyModeDisplay() string {
+	return modeDisplayName[l.Mode]
+}
+
+func (l *Lobby) getVideoFromUser(uid string) int {
+	for i, video := range l.Videos {
+		if video.SubmitterID == uid {
+			return i
+		}
+	}
+
+	return -1
+}
+
+func (l *Lobby) getNextRobin() string {
+	if len(l.RoundRobinQueue) < 1 {
+		return ""
+	}
+
+	if len(l.RoundRobinQueue) == 1 {
+		return l.RoundRobinQueue[0]
+	}
+
+	first := l.RoundRobinQueue[0]
+	copy(l.RoundRobinQueue, l.RoundRobinQueue[1:])
+	l.RoundRobinQueue[len(l.RoundRobinQueue)-1] = first
+
+	return l.RoundRobinQueue[0]
 }

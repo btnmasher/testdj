@@ -173,6 +173,7 @@
             }
         }
         .animate-check {
+            display: grid;
             animation: anim-border-typed 0.8s cubic-bezier(0.65, 0, 0.35, 1);
         }
     }
@@ -197,6 +198,7 @@
             }
         }
         .animate-check {
+            display: grid;
             animation: anim-border-fallback 0.8s cubic-bezier(0.65, 0, 0.35, 1);
         }
     }
@@ -965,5 +967,25 @@
         font-size: calc(var(--dino-label-base, 16px) * var(--dino-label-scale, 1));
         font-weight: 700;
         line-height: 1;
+    }
+
+    .tab {
+        @apply cursor-pointer font-semibold inline-flex px-2 py-1 rounded border-1 border-gray-500/70 hover:border-gray-400 dark:border-gray-500/70 dark:hover:border-gray-400 text-gray-700/70 dark:text-gray-300 hover:text-gray-500/70 dark:hover:text-gray-100 shadow-md/20;
+    }
+
+    .tab-content {
+        @apply hidden rounded;
+    }
+
+    #queue-tab:checked + label, #history-tab:checked + label {
+        @apply font-bold border-transparent hover:border-transparent text-gray-100 hover:text-gray-100 dark:text-gray-700 dark:hover:text-gray-700 bg-gray-500/70 dark:bg-gray-400 hover:bg-gray-400 dark:hover:bg-gray-300;
+    }
+
+    #queue-tab:checked ~ .tab-content-container #playlist-content {
+        display: block;
+    }
+
+    #history-tab:checked ~ .tab-content-container #history-content {
+        display: block;
     }
 }

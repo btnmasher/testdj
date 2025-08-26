@@ -123,6 +123,7 @@ func main() {
 			lobby.Get("/", service.WithLobbyAndUser(service.HandleLobbyPage))
 			lobby.Get("/video", service.HandleLobbyVideo)
 			lobby.Get("/playlist", service.HandleLobbyPlaylist)
+			lobby.Get("/history", service.HandleLobbyHistory)
 			lobby.Post("/heartbeat", service.WithLobbyAndUser(service.HandleHeartbeat))
 			lobby.Post("/add", service.WithLobbyAndUser(service.HandleAddVideo))
 			lobby.Get("/users", service.WithLobbyAndUser(service.HandleLobbyUsers))

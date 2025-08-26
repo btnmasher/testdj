@@ -2,15 +2,21 @@
 
 [![Release Build](https://github.com/btnmasher/testdj/actions/workflows/build_release.yml/badge.svg)](https://github.com/btnmasher/testdj/actions/workflows/build_release.yml)
 
-A shared "watch together" app: create or join a lobby, paste YouTube links, and everyone watches the same queue (mostly) in sync. The lobby can run the playlist in **linear** or **shuffle** mode, and every video (or skip) advances the queue.
+A shared "watch together" app: create or join a lobby, paste YouTube links, and everyone watches the same queue (mostly) in sync.
+
+The lobby can run the playlist in various modes:
+
+- **Shuffle**: Videos are randomly selected from the queue.
+- **Linear**: Videos are played in the order they are added.
+- **Round Robin**: Each user has a turn to have one of their submitted videos selected from the queue (if they have one), otherwise randomly selected.
 
 Users can:
 
 - Add videos
-  - Configurable per-user queue limit between 1 and 20 videos submitted to the active playlist.
+  - Configurable per-user queue limit between 1 and 20 videos submitted to the active playlist queue.
   - The same video cannot be re-submitted to the playlist for 1 hour since they were last played.
   - Lobby maximum of 100 videos in the playlist
-- **Vote to skip** the currently playing video, or **Vote to mute** a disruptive user for a cooldown period
+- **Vote to skip** the currently playing video, or **Vote to mute** a disruptive user for a cooldown period (30 minutes).
   - Votes succeed after 30 seconds with simple majority ignoring non-voting users
   - Votes succeed early if full lobby quorum majority is reached
 
@@ -60,7 +66,6 @@ make docker-build
 make docker-up
 make docker-down
 make docker-logs
-
 ```
 
 #### Without Cloudfare Tunnel

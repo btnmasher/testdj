@@ -91,7 +91,7 @@ func (m *LobbyManager) CleanupUsers() {
 	log := m.log.With("func", "CleanupUsers")
 
 	for user := range slices.Values(m.UsersByIP.ValuesSlice()) {
-		if now.Sub(user.LastActivity).Seconds() > 35 {
+		if now.Sub(user.LastActivity).Seconds() > 45 {
 			log.Debug("Found timed out user, removing from lobby", user.Log())
 			for lobby := range m.Lobbies.Values() {
 				for u := range slices.Values(lobby.Users.ValuesSlice()) {

@@ -8,19 +8,23 @@ import (
 	"github.com/btnmasher/safemap"
 )
 
+const (
+	VoteMuteDuration = 30 * time.Minute
+)
+
 type VoteSkipStatus struct {
-	VideoID   string
-	StartedAt time.Time
-	YesVotes  safemap.SafeMap[string, bool]
-	NoVotes   safemap.SafeMap[string, bool]
-	Active    bool
+	VideoID  string
+	EndsAt   time.Time
+	YesVotes safemap.SafeMap[string, bool]
+	NoVotes  safemap.SafeMap[string, bool]
+	Active   bool
 }
 
 type VoteMuteStatus struct {
 	TargetID   string
 	TargetName string
 	Initiator  string
-	StartedAt  time.Time
+	EndsAt     time.Time
 	YesVotes   safemap.SafeMap[string, bool]
 	NoVotes    safemap.SafeMap[string, bool]
 	Active     bool
@@ -39,7 +43,7 @@ func (l *Lobby) StartVoteSkip(user *User) bool {
 	l.VoteSkip.Active = true
 	l.VoteSkip.VideoID = l.CurrentVideo.ID
 	l.VoteSkip.YesVotes.Set(user.ID, true)
-	l.VoteSkip.StartedAt = time.Now()
+	l.VoteSkip.EndsAt = time.Now().Add(30 * time.Second)
 
 	l.Broadcast(UpdateVoteSkip, "")
 	l.voteSkipTimer.Reset(30 * time.Second)
@@ -77,7 +81,7 @@ func (l *Lobby) StartVoteMute(user *User, targetID string) bool {
 	l.VoteMute.TargetName = targetUser.Name
 	l.VoteMute.Initiator = user.ID
 	l.VoteMute.YesVotes.Set(user.ID, true)
-	l.VoteMute.StartedAt = now
+	l.VoteMute.EndsAt = now.Add(30 * time.Second)
 	l.Unlock()
 
 	log.Debug("Starting vote mute timer")
@@ -187,18 +191,17 @@ func (l *Lobby) EndVoteSkip(succeeded bool) {
 	l.voteSkipTimer.Stop()
 
 	if l.CurrentVideo != nil {
+		l.CurrentVideo.WasVoted = true
+
 		if succeeded {
-			videoID := l.CurrentVideo.ID
-			l.PlayedVideos.Set(videoID, time.Now().Add(time.Hour))
+			l.CurrentVideo.WasSkipped = true
 			l.PickNextVideo()
-		} else {
-			l.CurrentVideo.WasVoted = true
 		}
 	}
 
 	l.VoteSkip.Active = false
 	l.VoteSkip.VideoID = ""
-	l.VoteSkip.StartedAt = time.Time{}
+	l.VoteSkip.EndsAt = time.Time{}
 	l.VoteSkip.NoVotes.Clear()
 	l.VoteSkip.YesVotes.Clear()
 
@@ -233,7 +236,7 @@ func (l *Lobby) EndVoteMute(succeeded bool) {
 
 	if succeeded {
 		if u, ok := l.Users.Get(l.VoteMute.TargetID); ok {
-			exp := time.Now().Add(10 * time.Minute)
+			exp := time.Now().Add(VoteMuteDuration)
 			u.MutedUntil = exp
 			l.MutesByIP.Set(u.IP, exp)
 		}
@@ -245,7 +248,7 @@ func (l *Lobby) EndVoteMute(succeeded bool) {
 	l.VoteMute.TargetID = ""
 	l.VoteMute.TargetName = ""
 	l.VoteMute.Initiator = ""
-	l.VoteMute.StartedAt = time.Time{}
+	l.VoteMute.EndsAt = time.Time{}
 	l.VoteMute.NoVotes.Clear()
 	l.VoteMute.YesVotes.Clear()
 

@@ -2,7 +2,7 @@ package templates
 
 import (
     "time"
-    "fmt"
+
     "github.com/btnmasher/testdj/internal/dj"
 )
 
@@ -37,8 +37,7 @@ templ VotesPartial(lobby *dj.Lobby, user *dj.User) {
 
                 <div class="text-xs font-semibold text-shadow-sm">
                     <span>
-                        {{ skipEnd := lobby.VoteSkip.StartedAt.Add(30*time.Second) }}
-                        Voting ends in <span id="skip-timer" class="font-bold" data-ends={skipEnd.Unix()}>{fmt.Sprintf("%v", skipEnd.Sub(time.Now()).Round(time.Second))}</span>
+                        Voting ends in <time class="font-bold" data-rel data-countdown data-suffix="none" datetime={lobby.VoteSkip.EndsAt.Format(time.RFC3339)}></time>
                     </span>
                 </div>
             </div>
@@ -75,8 +74,7 @@ templ VotesPartial(lobby *dj.Lobby, user *dj.User) {
 
                 <div class="text-xs font-semibold text-shadow-sm">
                     <span>
-                        {{ muteEnd := lobby.VoteMute.StartedAt.Add(30*time.Second) }}
-                        Voting ends in <span id="mute-timer" class="font-bold" data-ends={muteEnd.Unix()}>{fmt.Sprintf("%v", muteEnd.Sub(time.Now()).Round(time.Second))}</span>
+                        Voting ends in <time class="font-bold" data-rel data-countdown data-suffix="none" datetime={lobby.VoteMute.EndsAt.Format(time.RFC3339)}></time>
                     </span>
                 </div>
             </div>

@@ -1,0 +1,56 @@
+package templates
+
+import (
+    "fmt"
+    "html"
+    "slices"
+    "time"
+
+    "github.com/btnmasher/testdj/internal/dj"
+)
+
+templ HistoryPartial(lobby *dj.Lobby) {
+    <ul class="space-y-2">
+        if lobby.PlayedVideos.Length() > 0 {
+            {{
+                sorted := slices.SortedFunc(lobby.PlayedVideos.Values(), func(a, b *dj.Video) int {
+                    return b.LastPlayed.Compare(a.LastPlayed)
+                })
+            }}
+            for _, v := range sorted {
+                <li class="sub-panel">
+                    <div class="my-1 group/video flex items-center justify-between">
+                        <div>
+                            <div class="text-sm">{html.UnescapeString(v.Title)} - {fmt.Sprintf("%v", v.Duration)}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-300">submitted by {v.SubmitterName}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-300">played <time data-rel datetime={v.LastPlayed.Format(time.RFC3339)}></time>
+                            if v.WasSkipped {
+                                <span class="text-red-600/80 dark:text-red-500"> (skipped)</span>
+                            }
+                            </div>
+                        </div>
+                        <button
+                            class="[display:var(--mobile-display,none)] group-hover/video:grid btn-primary anim-button flex-shrink-0 text-nowrap grid-cols-1 grid-rows-1 place-items-center inset-ring inset-ring-0 inset-ring-green-600"
+                            hx-on:click={templ.JSFuncCall("copyVideoURL", templ.JSExpression("event"), v.ID)}>
+                            <div class="anim-button-text col-start-1 row-start-1 text-center leading-none">
+                                Copy URL
+                            </div>
+                            <div class="success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="size-7 text-green-600"
+                                    viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16.7 5.7l-7.7 8-3.7-3.7" />
+                                </svg>
+                            </div>
+                        </button>
+                    </div>
+                </li>
+            }
+        } else {
+            <li class="sub-panel">
+                <div class="text-sm my-1">No Videos Played</div>
+            </li>
+        }
+    </ul>
+}

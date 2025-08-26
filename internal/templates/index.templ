@@ -29,8 +29,9 @@ templ Index() {
                             <select
                                 name="mode"
                                 class="input mt-1 w-full"
-                                title="How the playlist will select the next video (Shuffle: Random Order - Linear: First in first out">
+                                title="How the playlist will select the next video (Shuffle: Random Order - Round Robing: Play one video per user in a circle by who joined first - Linear: First in first out">
                                 <option value="shuffle">Shuffle</option>
+                                <option value="round_robin">Round Robin</option>
                                 <option value="linear">Linear</option>
                             </select>
                         </label>

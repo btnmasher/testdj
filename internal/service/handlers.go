@@ -125,13 +125,13 @@ func InjectSession() func(next http.Handler) http.Handler {
 			if lobbyID != "" {
 				lobby, ok = manager.GetLobby(lobbyID)
 				if !ok && !shouldIgnoreLobbyParam(r.URL.Path) {
-					handleErrorRedirect(w, r, "Invalid Lobby")
+					templates.ErrorPage("Invalid Lobby code", "The lobby you’re trying to join doesn’t exist or has expired.").Render(r.Context(), w)
 					return
 				}
 			} else if user != nil && user.LobbyID != "" {
 				lobby, ok = manager.GetLobby(user.LobbyID)
 				if !ok {
-					handleErrorRedirect(w, r, "Invalid Lobby")
+					templates.ErrorPage("Invalid Lobby code", "The lobby you’re trying to join doesn’t exist or has expired.").Render(r.Context(), w)
 					return
 				}
 			}
@@ -180,7 +180,7 @@ func handleErrorRedirect(w http.ResponseWriter, r *http.Request, message string)
 	respondWithToast(message, "error", w)
 	if strings.HasPrefix(r.URL.Path, "/lobby") {
 		w.Header().Set("HX-Redirect", "/")
-		w.WriteHeader(http.StatusOK)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	} else if strings.HasPrefix(r.URL.Path, "/sse") {
 		w.Header().Set("Access-Control-Expose-Headers", "Content-Type")
 		w.Header().Set("Content-Type", "text/event-stream")
@@ -639,6 +639,21 @@ func HandleLobbyPlaylist(w http.ResponseWriter, r *http.Request) {
 	templates.PlaylistPartial(lobby).Render(r.Context(), w)
 }
 
+func HandleLobbyHistory(w http.ResponseWriter, r *http.Request) {
+	lobby, ok := r.Context().Value(ContextLobby).(*dj.Lobby)
+	if !ok {
+		respondWithToast("Invalid Lobby", "error", w)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	lobby.Lock()
+	defer lobby.Unlock()
+
+	setContentTypeHTML(w)
+	templates.HistoryPartial(lobby).Render(r.Context(), w)
+}
+
 func HandleLobbyVideo(w http.ResponseWriter, r *http.Request) {
 	lobby, ok := r.Context().Value(ContextLobby).(*dj.Lobby)
 	if !ok {
@@ -735,6 +750,7 @@ func HandleVoteSkipStart(lobby *dj.Lobby, user *dj.User, w http.ResponseWriter, 
 
 	if lobby.Users.Length() < 2 {
 		lobby.Lock()
+		lobby.CurrentVideo.WasSkipped = true
 		lobby.PickNextVideo()
 		lobby.Unlock()
 		respondWithToast("Vote to skip automatically succeeded", "success", w)
