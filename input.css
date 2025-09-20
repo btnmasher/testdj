@@ -974,18 +974,16 @@
     }
 
     .tab-content {
-        @apply hidden rounded;
+        @apply hidden rounded min-h-0 h-full overflow-hidden;
     }
 
     #queue-tab:checked + label, #history-tab:checked + label {
         @apply font-bold border-transparent hover:border-transparent text-gray-100 hover:text-gray-100 dark:text-gray-700 dark:hover:text-gray-700 bg-gray-500/70 dark:bg-gray-400 hover:bg-gray-400 dark:hover:bg-gray-300;
     }
 
-    #queue-tab:checked ~ .tab-content-container #playlist-content {
-        display: block;
-    }
-
-    #history-tab:checked ~ .tab-content-container #history-content {
-        display: block;
+    .tabset:has(#queue-tab:checked) #playlist-content,
+    .tabset:has(#history-tab:checked) #history-content {
+        display: flex;
+        flex-direction: column;
     }
 }

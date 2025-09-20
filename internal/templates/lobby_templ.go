@@ -154,14 +154,14 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><div class=\"anim-button-text col-start-1 row-start-1 text-center leading-none\">Copy Invite Code</div><div class=\"success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"size-7 text-green-600\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16.7 5.7l-7.7 8-3.7-3.7\"></path></svg></div></button></div></div></div></div><div id=\"playlist-container\" class=\"w-full lg:w-1/2 lg:ml-auto order-1 lg:order-2 flex flex-col lg:h-full min-h-0\"><h2 class=\"text-xl lg:text-right text-center font-bold mb-2 dark:text-gray-200 shrink-0\">Playlist</h2><div id=\"playlist-scroll\" class=\"panel lg:max-h-full overflow-hidden\"><input id=\"queue-tab\" type=\"radio\" name=\"playlist-panel-tabs\" checked hidden> <label for=\"queue-tab\" class=\"tab\">Queue</label> <input id=\"history-tab\" type=\"radio\" name=\"playlist-panel-tabs\" hidden> <label for=\"history-tab\" class=\"tab\">History</label><div class=\"tab-content-container\"><div id=\"playlist-content\" class=\"tab-content\"><div class=\"grid grid-rows-[1fr_auto] min-h-0 lg:max-h-full\"><div class=\"my-2\"><span class=\"font-medium\">Mode: <span class=\"font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\"><div class=\"anim-button-text col-start-1 row-start-1 text-center leading-none\">Copy Invite Code</div><div class=\"success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"size-7 text-green-600\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16.7 5.7l-7.7 8-3.7-3.7\"></path></svg></div></button></div></div></div></div><div id=\"playlist-container\" class=\"w-full lg:w-1/2 lg:ml-auto order-1 lg:order-2 flex flex-col lg:h-full min-h-0\"><h2 class=\"text-xl lg:text-right text-center font-bold mb-2 dark:text-gray-200 shrink-0\">Playlist</h2><div id=\"playlist-scroll\" class=\"panel tabset lg:max-h-full overflow-hidden min-h-0 grid grid-rows-[auto_minmax(0,1fr)]\"><div><input id=\"queue-tab\" type=\"radio\" name=\"playlist-panel-tabs\" checked hidden> <label for=\"queue-tab\" class=\"tab\">Queue</label> <input id=\"history-tab\" type=\"radio\" name=\"playlist-panel-tabs\" hidden> <label for=\"history-tab\" class=\"tab\">History</label></div><div class=\"min-h-0 h-full overflow-hidden\"><div id=\"playlist-content\" class=\"tab-content\"><div class=\"grid grid-rows-[auto_minmax(0,1fr)] min-h-0 h-full lg:max-h-full\"><div class=\"my-2\"><span class=\"font-medium\">Mode: <span class=\"font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(lobby.GetLobbyModeDisplay())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 86, Col: 125}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 88, Col: 125}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -174,7 +174,7 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs("/lobby/" + lobby.ID + "/playlist")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 92, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 94, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -195,20 +195,20 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs("/lobby/" + lobby.ID + "/add")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 97, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 99, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" hx-trigger=\"submit\" hx-swap=\"none\" hx-disabled-elt=\"find input[type='text'], find button\" hx-on::after-on-Load=\"triggerSuccessAnim(this, event);\" class=\"pt-4 space-y-2 shrink-0 bg-gray-200 dark:bg-gray-700 dark:text-gray-100 z-10\"><div class=\"flex flex-wrap items-stretch gap-4\"><input type=\"text\" name=\"url\" placeholder=\"YouTube URL\" class=\"input text-sm placeholder:text-base grow\" required> <button id=\"add-video-button\" class=\"btn-primary anim-button disabled:cursor-not-allowed grow grid grid-cols-1 grid-rows-1 place-items-center inset-ring inset-ring-0 inset-ring-green-600\" type=\"submit\"><div class=\"anim-button-text col-start-1 row-start-1 text-center leading-none\">Add Video</div><div class=\"success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"size-7 text-green-600\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16.7 5.7l-7.7 8-3.7-3.7\"></path></svg></div></button></div></form></div></div><div id=\"history-content\" class=\"tab-content\"><div class=\"grid grid-rows-[1fr_auto] min-h-0 lg:max-h-full\"><div class=\"my-2\"><span class=\"font-medium\">Played in the last hour</span></div><div class=\"min-h-0 lg:overflow-y-auto lg:overscroll-contain\" id=\"history-list\" hx-trigger=\"sse:playlist_update, sse:video_update\" hx-get=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" hx-trigger=\"submit\" hx-swap=\"none\" hx-disabled-elt=\"find input[type='text'], find button\" hx-on::after-on-Load=\"triggerSuccessAnim(this, event);\" class=\"pt-4 space-y-2 shrink-0 bg-gray-200 dark:bg-gray-700 dark:text-gray-100 z-10\"><div class=\"flex flex-wrap items-stretch gap-4\"><input type=\"text\" name=\"url\" placeholder=\"YouTube URL\" class=\"input text-sm placeholder:text-base grow\" required> <button id=\"add-video-button\" class=\"btn-primary anim-button disabled:cursor-not-allowed grow grid grid-cols-1 grid-rows-1 place-items-center inset-ring inset-ring-0 inset-ring-green-600\" type=\"submit\"><div class=\"anim-button-text col-start-1 row-start-1 text-center leading-none\">Add Video</div><div class=\"success-check pointer-events-none col-start-1 row-start-1 w-full h-full grid place-items-center opacity-0\"><svg xmlns=\"http://www.w3.org/2000/svg\" class=\"size-7 text-green-600\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M16.7 5.7l-7.7 8-3.7-3.7\"></path></svg></div></button></div></form></div></div><div id=\"history-content\" class=\"tab-content\"><div class=\"grid grid-rows-[auto_minmax(0,1fr)] min-h-0 h-full lg:max-h-full\"><div class=\"my-2\"><span class=\"font-medium\">Played in the last hour</span></div><div class=\"min-h-0 lg:overflow-y-auto lg:overscroll-contain\" id=\"history-list\" hx-trigger=\"sse:playlist_update, sse:video_update\" hx-get=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs("/lobby/" + lobby.ID + "/history")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 139, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 141, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -229,7 +229,7 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/img/dino-sprites.png?nocache=%v", os.Getenv("githash")))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 150, Col: 119}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 152, Col: 119}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -242,7 +242,7 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/js/logout.js?nocache=%v", os.Getenv("githash")))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 155, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 157, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -255,7 +255,7 @@ func LobbyPage(lobby *dj.Lobby, user *dj.User) templ.Component {
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/js/dinopit.js?nocache=%v", os.Getenv("githash")))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 156, Col: 84}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/lobby.templ`, Line: 158, Col: 84}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {

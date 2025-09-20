@@ -74,14 +74,16 @@ templ LobbyPage(lobby *dj.Lobby, user *dj.User) {
 
                 <div id="playlist-container" class="w-full lg:w-1/2 lg:ml-auto order-1 lg:order-2 flex flex-col lg:h-full min-h-0">
                     <h2 class="text-xl lg:text-right text-center font-bold mb-2 dark:text-gray-200 shrink-0">Playlist</h2>
-                    <div id="playlist-scroll" class="panel lg:max-h-full overflow-hidden">
-                        <input id="queue-tab" type="radio" name="playlist-panel-tabs" checked hidden />
-                        <label for="queue-tab" class="tab">Queue</label>
-                        <input id="history-tab" type="radio" name="playlist-panel-tabs" hidden />
-                        <label for="history-tab" class="tab">History</label>
-                        <div class="tab-content-container">
+                    <div id="playlist-scroll" class="panel tabset lg:max-h-full overflow-hidden min-h-0 grid grid-rows-[auto_minmax(0,1fr)]">
+                        <div>
+                            <input id="queue-tab" type="radio" name="playlist-panel-tabs" checked hidden />
+                            <label for="queue-tab" class="tab">Queue</label>
+                            <input id="history-tab" type="radio" name="playlist-panel-tabs" hidden />
+                            <label for="history-tab" class="tab">History</label>
+                        </div>
+                        <div class="min-h-0 h-full overflow-hidden">
                             <div id="playlist-content" class="tab-content">
-                                <div class="grid grid-rows-[1fr_auto] min-h-0 lg:max-h-full">
+                                <div class="grid grid-rows-[auto_minmax(0,1fr)] min-h-0 h-full lg:max-h-full">
                                     <div class="my-2">
                                         <span class="font-medium">Mode: <span class="font-bold">{ lobby.GetLobbyModeDisplay() }</span></span>
                                     </div>
@@ -128,7 +130,7 @@ templ LobbyPage(lobby *dj.Lobby, user *dj.User) {
                                 </div>
                             </div>
                             <div id="history-content" class="tab-content">
-                                <div class="grid grid-rows-[1fr_auto] min-h-0 lg:max-h-full">
+                                <div class="grid grid-rows-[auto_minmax(0,1fr)] min-h-0 h-full lg:max-h-full">
                                     <div class="my-2">
                                         <span class="font-medium">Played in the last hour</span>
                                     </div>

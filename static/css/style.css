@@ -380,6 +380,9 @@
   .grid-rows-\[1fr_auto\] {
     grid-template-rows: 1fr auto;
   }
+  .grid-rows-\[auto_minmax\(0\,1fr\)\] {
+    grid-template-rows: auto minmax(0,1fr);
+  }
   .flex-col {
     flex-direction: column;
   }
@@ -2077,6 +2080,9 @@
   }
   .tab-content {
     display: none;
+    height: 100%;
+    min-height: calc(var(--spacing) * 0);
+    overflow: hidden;
     border-radius: 0.25rem;
   }
   #queue-tab:checked + label, #history-tab:checked + label {
@@ -2139,11 +2145,9 @@
       }
     }
   }
-  #queue-tab:checked ~ .tab-content-container #playlist-content {
-    display: block;
-  }
-  #history-tab:checked ~ .tab-content-container #history-content {
-    display: block;
+  .tabset:has(#queue-tab:checked) #playlist-content, .tabset:has(#history-tab:checked) #history-content {
+    display: flex;
+    flex-direction: column;
   }
 }
 @layer base {
