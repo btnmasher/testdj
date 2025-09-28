@@ -30,7 +30,7 @@ const (
 	LobbyModeLinear     = "linear"
 )
 
-var modeDisplayName = map[string]string{
+var ModeDisplayName = map[string]string{
 	LobbyModeShuffle:    "Shuffle",
 	LobbyModeRoundRobin: "Round Robin",
 	LobbyModeLinear:     "Linear",
@@ -52,7 +52,7 @@ func formatUsersUpdate(users []*User) string {
 type Lobby struct {
 	sync.Mutex
 	ID                string
-	Mode              string // "linear" or "shuffle"
+	Mode              string
 	CreatorIP         string
 	LobbyQueueLimit   int
 	UserQueueLimit    int
@@ -459,7 +459,7 @@ func (l *Lobby) PickNextVideo() {
 }
 
 func (l *Lobby) GetLobbyModeDisplay() string {
-	return modeDisplayName[l.Mode]
+	return ModeDisplayName[l.Mode]
 }
 
 func (l *Lobby) getVideoFromUser(uid string) int {

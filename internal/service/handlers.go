@@ -340,7 +340,7 @@ func HandleCreateLobby(w http.ResponseWriter, r *http.Request) {
 	user := manager.NewUser(name, ip)
 
 	mode := r.FormValue("mode")
-	if mode != "linear" && mode != "shuffle" {
+	if _, exists := dj.ModeDisplayName[strings.ToLower(mode)]; !exists {
 		mode = "linear"
 	}
 
